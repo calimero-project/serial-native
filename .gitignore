@@ -13,3 +13,5 @@
 *.exe
 *.out
 *.app
+
+/target/
