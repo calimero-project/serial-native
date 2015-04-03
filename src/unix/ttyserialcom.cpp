@@ -1,6 +1,6 @@
 /*
     Calimero 2 - A library for KNX network access
-    Copyright (c) 2011, 2014 B. Malinowsky
+    Copyright (c) 2011, 2015 B. Malinowsky
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -72,7 +72,12 @@
 #else
 
 static void perror(const char* /*str*/) {}
+
+#if defined __APPLE__
+static int puts(const char* /*str*/) { return 1; }
+#else
 static void puts(const char* /*str*/) {}
+#endif
 
 #endif // DEBUG
 
@@ -1101,7 +1106,7 @@ static int read(fd_t fd, uint8_t* buffer, uint32_t off, uint32_t len)
     buf[0] = 0;
     uint8_t* pb = buffer + off;
     //strcpy(buf, "data:");
-    int used = sprintf(buf, "data (%u):", offset);
+    int used = sprintf(buf, "data (%zu):", offset);
     for (unsigned i = 0; i < offset; ++i)
         snprintf(buf + used + 3 * i, 4, " %02X", *pb++);
     trace("end read", buf);
@@ -1303,7 +1308,7 @@ JNIEXPORT jint JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_getStat
     trace("get status");
     fd_t fd = getFD(env, obj);
     uint32_t value = 0;
-    bool ret = 0;
+    int ret = 0;
     if (type == LINE_STATUS) {
         // line status bit field
         // 0x0010 : CTS (clear-to-send) signal is on
@@ -1339,7 +1344,7 @@ JNIEXPORT jint JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_getStat
 
         // XXX
     }
-    if (!ret)
+    if (ret == -1)
         throwException(env, errno);
     return value;
 }
