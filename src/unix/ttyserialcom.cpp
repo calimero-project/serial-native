@@ -1,6 +1,6 @@
 /*
     Calimero 2 - A library for KNX network access
-    Copyright (c) 2011, 2015 B. Malinowsky
+    Copyright (c) 2011, 2016 B. Malinowsky
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -70,14 +70,19 @@
 #include <stdio.h>
 
 #else
+// non-debug stuff provides dummies to keep library small
 
-static void perror(const char* /*str*/) {}
+extern "C" {
+	static void perror(const char* /*str*/) {}
+}
 
 #if defined __APPLE__
 static int puts(const char* /*str*/) { return 1; }
 #else
-static void puts(const char* /*str*/) {}
-#endif
+extern "C" {
+	static int puts(const char* /*str*/) { return 1; }
+}
+#endif // __APPLE__
 
 #endif // DEBUG
 
