@@ -195,7 +195,7 @@ static char* itoa(int32_t i, char* str)
 
     char* t = str;
     do {
-        *t++ = i % 10 + '0';
+        *t++ = static_cast<char>(i % 10 + '0');
     } while ((i /= 10) > 0);
     *t = 0;
 
@@ -229,7 +229,7 @@ static pid_t readPid(const char* filename)
         /*ssize_t rd = */read(fd, in, sizeof(in));
         close(fd);
 
-        pid = strtoul(in, 0, 10);
+        pid = static_cast<pid_t>(strtoul(in, 0, 10));
     }
     else
         trace_error("read pid from", filename);
@@ -929,11 +929,11 @@ JNIEXPORT jint JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_setCont
         }
         else if (ctrl == DATABITS) {
             old = getGenericDataBits(options.c_cflag);
-            setTermiosDataBits(&options.c_cflag, newValue);
+            setTermiosDataBits(&options.c_cflag, static_cast<uint8_t>(newValue));
         }
         else if (ctrl == STOPBITS) {
             old = getGenericStopBits(options.c_cflag);
-            setTermiosStopBits(&options.c_cflag, newValue);
+            setTermiosStopBits(&options.c_cflag, static_cast<uint8_t>(newValue));
         }
         else if (ctrl == FLOWCTRL) {
             old = getGenericFlowControl(options.c_iflag);
@@ -998,11 +998,11 @@ static bool drain(fd_t fd)
     return ret == 0;
 }
 
-static int write(JNIEnv* env, fd_t fd, const uint8_t* pBuf, size_t off, size_t len)
+static ssize_t write(JNIEnv* env, fd_t fd, const uint8_t* pBuf, size_t off, size_t len)
 {
     trace("start write");
 
-    int written = write(fd, pBuf + off, len);
+    ssize_t written = write(fd, pBuf + off, len);
     if (written < 0)
         throwException(env, errno);
     else if (!drain(fd))
@@ -1020,8 +1020,8 @@ JNIEXPORT jint JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_writeBy
         jobject obj, jbyteArray buf, jint off, jint len)
 {
     jboolean iscopy;
-    return write(env, getFD(env, obj),
-            reinterpret_cast<uint8_t*>(env->GetByteArrayElements(buf, &iscopy)), off, len);
+    return static_cast<jint>(write(env, getFD(env, obj),
+            reinterpret_cast<uint8_t*>(env->GetByteArrayElements(buf, &iscopy)), off, len));
 }
 
 /*
@@ -1033,7 +1033,7 @@ JNIEXPORT jint JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_write(J
         jobject obj, jint byte)
 {
     uint8_t out = static_cast<uint8_t>(byte);
-    return write(env, getFD(env, obj), &out, 0, 1);
+    return static_cast<jint>(write(env, getFD(env, obj), &out, 0, 1));
 }
 
 static uint32_t isInputWaiting(JNIEnv* env, fd_t fd)
@@ -1052,7 +1052,7 @@ static uint32_t isInputWaiting(JNIEnv* env, fd_t fd)
     return bytes;
 }
 
-static int read(fd_t fd, uint8_t* buffer, uint32_t off, uint32_t len)
+static ssize_t read(fd_t fd, uint8_t* buffer, uint32_t off, uint32_t len)
 {
     trace("start read");
 
@@ -1084,7 +1084,7 @@ static int read(fd_t fd, uint8_t* buffer, uint32_t off, uint32_t len)
         else {
             // read received bytes from stream into buffer
             if (FD_ISSET(fd, &input)) {
-                int ret = read(fd, buffer + offset, remaining);
+            	ssize_t ret = read(fd, buffer + offset, remaining);
                 if (ret == -1) {
                     perror("read");
                     // retry if error is EAGAIN or EINTR, otherwise bail out
@@ -1129,9 +1129,9 @@ JNIEXPORT jint JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_readByt
 {
     jboolean iscopy;
     jbyte* pBuf = env->GetByteArrayElements(b, &iscopy);
-    int r = read(getFD(env, obj), reinterpret_cast<uint8_t*>(pBuf), off, len);
+    ssize_t r = read(getFD(env, obj), reinterpret_cast<uint8_t*>(pBuf), off, len);
     env->ReleaseByteArrayElements(b, pBuf, 0);
-    return r;
+    return static_cast<jint>(r);
 }
 
 /*
@@ -1404,13 +1404,13 @@ JNIEXPORT void JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_setTime
         else if (readIntervalTimeout > 0) {
             // setting: enforce an inter-character timeout after reading the first char
             vmin = 255;
-            vtime = readIntervalTimeout / 100;
+            vtime = static_cast<cc_t>(readIntervalTimeout / 100);
         }
         else if (readTotalTimeoutConstant > 0 && readTotalTimeoutMultiplier == 0
                 && readIntervalTimeout == 0) {
             // setting: set a maximum timeout to wait for next character
             vmin = 0;
-            vtime = readTotalTimeoutConstant / 100;
+            vtime = static_cast<cc_t>(readTotalTimeoutConstant / 100);
             if (vtime == 0)
                 vtime = 1;
         }
