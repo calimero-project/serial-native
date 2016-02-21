@@ -5,9 +5,9 @@
 		<groupId>com.github.calimero</groupId>
 		<artifactId>calimero-parent</artifactId>
 		<version>2.3-beta</version>
-	</parent>	
+	</parent>
 	<artifactId>serial-native</artifactId>
-	<packaging>pom</packaging>
+	<packaging>nar</packaging>
 	<name>Serial (native)</name>
 	<description>Libraries for serial port access using JNI</description>
 	<scm>
@@ -28,6 +28,12 @@
 		</developer>
 	</developers>
 
+	<properties>
+		<compile.debug>true</compile.debug>
+<!-- 		<java.home>/Library/Java/JavaVirtualMachines/jdk1.8.0_40.jdk/Contents/Home</java.home> -->
+		<java.home>/usr/lib/jvm/jdk1.8.0_45</java.home>
+	</properties>
+
 	<build>
 		<plugins>
 			<plugin>
@@ -38,6 +44,52 @@
 						<phase>none</phase>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<groupId>com.github.maven-nar</groupId>
+				<artifactId>nar-maven-plugin</artifactId>
+				<version>3.2.3</version>
+				<extensions>true</extensions>
+				<configuration>
+					<output>serialcom</output>
+					<cpp>
+						<defines>
+<!--      						<define>DEBUG</define> -->
+						</defines>
+						<exceptions>false</exceptions>
+						<debug>${compile.debug}</debug>
+						<optimize>size</optimize>
+						<systemIncludePaths>
+							<systemIncludePath>${java.home}/include</systemIncludePath>
+							<!-- Linux -->
+							<systemIncludePath>${java.home}/include/linux</systemIncludePath>
+							<!-- OS X -->
+							<systemIncludePath>${java.home}/include/darwin</systemIncludePath>
+						</systemIncludePaths>
+						<excludes>
+							<exclude>win/*</exclude>
+						</excludes>
+						<options>
+							<option>-Wno-unused-result</option>
+							<option>-c</option>
+							<option>-fmessage-length=0</option>
+						</options>
+						<rtti>false</rtti>
+					</cpp>
+					<linker>
+						<options>
+							<!-- on OS X -s should be ignored but isn't, causes internal linker error -->
+<!-- 							<option>-s</option> -->
+<!-- 							<option>-dynamiclib</option> -->
+						</options>
+					</linker>
+					<libraries>
+						<library>
+							<type>jni</type>
+							<linkCPP>false</linkCPP>
+						</library>
+					</libraries>
+				</configuration>
 			</plugin>
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
