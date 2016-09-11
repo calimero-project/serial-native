@@ -49,6 +49,7 @@
 #include <sys/ioctl.h>
 #include <string.h>
 #include <errno.h>
+#include <dirent.h>
 
 // next include is for select()
 #include <sys/select.h>
@@ -68,19 +69,20 @@
 #if defined DEBUG
 
 #include <stdio.h>
+#include <stdarg.h>
 
 #else
 // non-debug stuff provides dummies to keep library small
 
 extern "C" {
-	static void perror(const char* /*str*/) {}
+    static void perror(const char* /*str*/) {}
 }
 
 #if defined __APPLE__
 static int puts(const char* /*str*/) { return 1; }
 #else
 extern "C" {
-	static int puts(const char* /*str*/) { return 1; }
+    static int puts(const char* /*str*/) { return 1; }
 }
 #endif // __APPLE__
 
@@ -91,7 +93,7 @@ extern "C" {
 /*
  Typical serial port device names
 
- Linux: /dev/ttyS0
+ Linux: /dev/ttyS0 or /dev/ttyUSB0 or /dev/ttyACM0
  HP-UX: /dev/tty1p0
  Solaris: /dev/ttya
  MacOS: /dev/ttys0
@@ -113,6 +115,15 @@ static void trace(const char* msg, const char* msg2 = 0)
     fflush(stdout);
 }
 
+static void dbg_out(const char* format, ...)
+{
+    va_list argptr;
+    va_start(argptr,format);
+
+    vprintf(format, argptr);
+    fflush(stdout);
+}
+
 static void formatError(int error, char* buf, size_t size)
 {
     buf[0] = 0;
@@ -131,6 +142,7 @@ static void trace_error(const char* msg, const char* msg2 = 0)
 }
 #else
 static void trace(const char* /*msg*/, const char* /*msg2*/= 0) {}
+static void dbg_out(const char* /*format*/, ...) {}
 static void trace_error(const char* /*msg*/, const char* /*msg2*/= 0) {}
 #endif
 
@@ -198,7 +210,6 @@ static char* itoa(int32_t i, char* str)
         *t++ = static_cast<char>(i % 10 + '0');
     } while ((i /= 10) > 0);
     *t = 0;
-
     for (--t; t > str; ++str, --t) {
         char c = *str;
         *str = *t;
@@ -415,6 +426,48 @@ static fd_t openPort(JNIEnv* env, jstring portId, bool configurePort, int* lastE
     return fd;
 }
 
+#if !defined __APPLE__
+static bool hasDevSerialLink(JNIEnv* env, jstring portId)
+{
+    const char* dir = "/dev/serial/by-id";
+    trace("open dir", dir);
+    struct dirent *dp;
+    DIR *dfd;
+    if ((dfd = opendir(dir)) == NULL) {
+        trace_error("can't open", dir);
+        return false;
+    }
+
+    jboolean iscopy;
+    const char* port = env->GetStringUTFChars(portId, &iscopy);
+    bool hasLink = false;
+    char filename[PATH_MAX];
+    while ((dp = readdir(dfd)) != NULL) {
+        struct stat stbuf;
+        sprintf(filename, "%s/%s", dir, dp->d_name);
+        if (stat(filename, &stbuf) == -1) {
+            trace_error("error in stat for", filename);
+            continue;
+        }
+        // ignore entries '.' and '..'
+        if (dp->d_name[0] == '.' && strlen(dp->d_name) <= 2)
+            continue;
+
+        trace("found entry", dp->d_name);
+        char abs[PATH_MAX];
+        realpath(filename, abs);
+        if (strcmp(port, abs) == 0) {
+            hasLink = true;
+            dbg_out("%s -> %s\n", dp->d_name, abs);
+            break;
+        }
+    }
+
+    env->ReleaseStringUTFChars(portId, port);
+    return hasLink;
+}
+#endif // !defined __APPLE__
+
 #if !defined PORT_UNKNOWN
 #define PORT_UNKNOWN 0
 #endif
@@ -432,15 +485,20 @@ JNIEXPORT jboolean JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_por
     fd_t fd = openPort(env, portID, false, &error);
     if (fd == INVALID_FD)
         return JNI_FALSE;
-
-    jboolean valid = JNI_FALSE;
 #if defined TIOCGSERIAL
+    jboolean valid = JNI_FALSE;
     struct serial_struct info;
     errno = 0;
-    if (ioctl(fd, TIOCGSERIAL, &info) == 0 && info.type != PORT_UNKNOWN)
-        valid = JNI_TRUE;
+    if (ioctl(fd, TIOCGSERIAL, &info) == 0) {
+        if (info.type != PORT_UNKNOWN)
+            valid = JNI_TRUE;
+        else if (hasDevSerialLink(env, portID))
+            valid = JNI_TRUE;
+    }
     else
         trace_error("check port type");
+#else
+    jboolean valid = JNI_FALSE;
 #endif
     closePort(fd);
     return valid;
@@ -462,7 +520,7 @@ JNIEXPORT void JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_open(JN
 #if defined DEBUG
 
 #if !defined TXSETIHOG
-#define		TXSETIHOG (('X'<<8) + 9)
+#define     TXSETIHOG (('X'<<8) + 9)
 #define     TXSETOHOG (('X'<<8) + 10)
 #endif
 
@@ -470,9 +528,9 @@ JNIEXPORT void JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_open(JN
         const uint32_t size = 200;
         // XXX how to set buffers
         if (ioctl(fd, TXSETIHOG, &size) == -1)
-        	trace_error("TXSETIHOG");
+            trace_error("TXSETIHOG");
         if (ioctl(fd, TXSETOHOG, &size) == -1)
-        	trace_error("TXSETOHOG");
+            trace_error("TXSETOHOG");
 
         char out[50];
         snprintf(out, 50, "set queue tx %d rx %d", 0, 0);
@@ -1052,6 +1110,8 @@ static uint32_t isInputWaiting(JNIEnv* env, fd_t fd)
     return bytes;
 }
 
+static int32_t receiveTimeout = 500; // ms
+
 static ssize_t read(fd_t fd, uint8_t* buffer, uint32_t off, uint32_t len)
 {
     trace("start read");
@@ -1066,8 +1126,7 @@ static ssize_t read(fd_t fd, uint8_t* buffer, uint32_t off, uint32_t len)
 
         struct timeval timeout;
         timeout.tv_sec = 0;
-        timeout.tv_usec = 500000;
-
+        timeout.tv_usec = receiveTimeout * 1000;
         int n = select(maxFd, &input, NULL, NULL, &timeout);
         if (n == -1) {
             perror("select failed");
@@ -1079,12 +1138,14 @@ static ssize_t read(fd_t fd, uint8_t* buffer, uint32_t off, uint32_t len)
                 // e.g., EBADF
                 break;
         }
-        else if (n == 0)
-            puts("TIMEOUT");
+        else if (n == 0) {
+            puts("read timeout");
+            break;
+        }
         else {
             // read received bytes from stream into buffer
             if (FD_ISSET(fd, &input)) {
-            	ssize_t ret = read(fd, buffer + offset, remaining);
+                ssize_t ret = read(fd, buffer + offset, remaining);
                 if (ret == -1) {
                     perror("read");
                     // retry if error is EAGAIN or EINTR, otherwise bail out
@@ -1395,16 +1456,19 @@ JNIEXPORT void JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_setTime
             // setting: return immediately from read, even if no characters read
             vmin = 0;
             vtime = 0;
+            trace("setTimeouts: return immediately from read, even if no characters read");
         }
         else if (readTotalTimeoutMultiplier == 0 && readTotalTimeoutConstant == 0) {
             // setting: no total timeouts used for read operations, block for next char
             vmin = 1;
             vtime = 0;
+            trace("setTimeouts: no total timeouts used for read operations, block for next char");
         }
         else if (readIntervalTimeout > 0) {
             // setting: enforce an inter-character timeout after reading the first char
             vmin = 255;
             vtime = static_cast<cc_t>(readIntervalTimeout / 100);
+            trace("setTimeouts: enforce an inter-character timeout after reading the first char");
         }
         else if (readTotalTimeoutConstant > 0 && readTotalTimeoutMultiplier == 0
                 && readIntervalTimeout == 0) {
@@ -1413,6 +1477,8 @@ JNIEXPORT void JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_setTime
             vtime = static_cast<cc_t>(readTotalTimeoutConstant / 100);
             if (vtime == 0)
                 vtime = 1;
+            receiveTimeout = readTotalTimeoutConstant;
+            trace("setTimeouts: set a maximum timeout to wait for next character");
         }
         else {
             // XXX hmm
