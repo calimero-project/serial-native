@@ -15,3 +15,8 @@
 *.app
 
 /target/
+
+# Gradle
+.gradle
+build/
+!gradle-wrapper.jar

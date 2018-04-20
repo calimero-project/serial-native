@@ -1,0 +1,84 @@
+plugins {
+    id 'cpp-library'
+    id 'visual-studio'
+    id 'maven-publish'
+}
+
+group = 'com.github.calimero'
+version = '2.4-SNAPSHOT'
+
+// set this variable manually to Java home directory if default location does not work
+def javaHome = System.properties['java.home']
+def cppStd = "-std=c++17"
+
+import org.gradle.internal.os.OperatingSystem;
+def os = OperatingSystem.current()
+
+library {
+    println "Platform " + os
+    println "Java home directory = ${javaHome}"
+
+    source {
+        if (os.isWindows())
+            from fileTree(dir: "src/win", include: "**/*.cpp")
+        else // linux, macos
+            from fileTree(dir: "src/unix", include: "**/*.cpp")
+    }
+
+    publicHeaders {
+        from("src/include", "${javaHome}/include", "${javaHome}/../include")
+        def osSpecificInclude = os.isLinux() ? 'linux' : os.isMacOsX() ? 'darwin' : os.isWindows() ? 'win32' : ''
+        from("${javaHome}/include/${osSpecificInclude}", "${javaHome}/../include/${osSpecificInclude}")
+    }
+
+    linkage = [ Linkage.SHARED ]
+
+    binaries.configureEach {
+        def compileTask = compileTask.get()
+        compileTask.positionIndependentCode = "true"
+        
+        if ((toolChain in Clang || toolChain in Gcc) && !compileTask.isOptimized()) {
+            // maybe -O0 works better, -Og still does several optimizations
+            // option "-g" is included by default
+            compileTask.compilerArgs = [ cppStd, "-Wall", "-Og" ]
+        }
+
+        if (toolChain in Clang && compileTask.isOptimized()) {
+            compileTask.debuggable = "false"
+            // "-Wl,-s" not necessary
+            compileTask.compilerArgs = [ cppStd, "-Wall", "-Oz", "-fno-cxx-exceptions" ]
+        }
+        if (toolChain in Gcc && compileTask.isOptimized()) {
+            compileTask.debuggable = "false"
+            // "-Wl,-s" not necessary
+            compileTask.compilerArgs = [ cppStd, "-Wall", "-Os", "-fno-exceptions" ]
+        }
+
+        if (toolChain in VisualCpp && !compileTask.isOptimized()) {
+            // '/Zi' already included
+            compileTask.compilerArgs = [ '/DDEBUG', "/Wall" ]
+            def linkTask = linkTask.get()
+            linkTask.linkerArgs = [ '/DEBUG' ]
+        }
+        if (toolChain in VisualCpp && compileTask.isOptimized()) {
+            compileTask.debuggable = "false"
+            compileTask.compilerArgs = [ '/Os', "/Wall" ]
+        }
+
+        def compile = compileTask.isOptimized() ? "release" : "debug"
+        println "Additional compiler args for ${compile} version: " + compileTask.compilerArgs.get()
+    }
+}
+
+if (!os.isWindows()) {
+    // always build debug/release(+stripped) versions
+    build.dependsOn { stripSymbolsRelease }
+}
+
+publishing {
+    repositories {
+        maven {
+            url "$buildDir/repo"
+        }
+    }
+}
