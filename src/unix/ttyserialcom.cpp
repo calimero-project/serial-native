@@ -1,6 +1,6 @@
 /*
     Calimero 2 - A library for KNX network access
-    Copyright (c) 2011, 2016 B. Malinowsky
+    Copyright (c) 2011, 2018 B. Malinowsky
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -22,9 +22,6 @@
 //  communication devices.
 //  The JNI is defined in serialcom.h.
 //
-//  To create the library, compile and link this file using your favorite C++
-//  compiler/linker or IDE, e.g., g++/ld, Code::Blocks.
-
 // Implementation notes, for what it's worth:
 // I do not take any precautions of any cua devices, they are not supported.
 //
@@ -615,7 +612,7 @@ static const int PARITY_MARK = tuwien_auto_calimero_serial_SerialComAdapter_PARI
 static const int PARITY_SPACE = -1; //tuwien_auto_calimero_serial_SerialComAdapter_PARITY_SPACE;
 
 
-static void setTermiosParity(tcflag_t* cflags, uint32_t parity)
+static void setTermiosParity(tcflag_t* cflags, int32_t parity)
 {
 #ifdef  CMSPAR
     *cflags &= ~(PARENB | PARODD | CMSPAR);
