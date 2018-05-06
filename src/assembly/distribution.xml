@@ -17,6 +17,30 @@
 			<source>LICENSE</source>
 			<outputDirectory>/</outputDirectory>
 		</file>
+		<file>
+			<source>build.gradle</source>
+			<outputDirectory>/</outputDirectory>
+		</file>
+		<file>
+			<source>gradlew</source>
+			<outputDirectory>/</outputDirectory>
+		</file>
+		<file>
+			<source>gradlew.bat</source>
+			<outputDirectory>/</outputDirectory>
+		</file>
+		<file>
+			<source>settings.gradle</source>
+			<outputDirectory>/</outputDirectory>
+		</file>
+		<file>
+			<source>gradle/wrapper/gradle-wrapper.jar</source>
+			<outputDirectory>/gradle/wrapper/</outputDirectory>
+		</file>
+		<file>
+			<source>gradle/wrapper/gradle-wrapper.properties</source>
+			<outputDirectory>/gradle/wrapper/</outputDirectory>
+		</file>
 	</files>
 	<fileSets>
 		<fileSet>
