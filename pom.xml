@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.github.calimero</groupId>
 		<artifactId>calimero-parent</artifactId>
-		<version>2.4-SNAPSHOT</version>
+		<version>2.4-rc1</version>
 	</parent>
 	<artifactId>serial-native</artifactId>
 	<packaging>nar</packaging>
@@ -30,7 +30,7 @@
 
 	<properties>
 		<compile.debug>false</compile.debug>
-<!--		<java.home>/Library/Java/JavaVirtualMachines/jdk1.8.0_112.jdk/Contents/Home</java.home>  -->
+<!--		<java.home>/Library/Java/JavaVirtualMachines/jdk-10.jdk/Contents/Home</java.home> -->
 		<java.home>/usr/lib/jvm/java-8-oracle</java.home>
 	</properties>
 
