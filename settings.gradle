@@ -1,1 +1,3 @@
 rootProject.name = 'serialcom'
+
+enableFeaturePreview('STABLE_PUBLISHING')
