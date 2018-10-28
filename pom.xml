@@ -48,7 +48,7 @@
 			<plugin>
 				<groupId>com.github.maven-nar</groupId>
 				<artifactId>nar-maven-plugin</artifactId>
-				<version>3.2.3</version>
+				<version>3.6.0</version>
 				<extensions>true</extensions>
 				<configuration>
 					<output>serialcom</output>
@@ -93,7 +93,7 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
-				<version>2.5.3</version>
+				<version>3.0.0</version>
 				<configuration>
 					<appendAssemblyId>false</appendAssemblyId>
 					<descriptors>
