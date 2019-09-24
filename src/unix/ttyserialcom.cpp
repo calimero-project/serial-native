@@ -1,6 +1,6 @@
 /*
     Calimero 2 - A library for KNX network access
-    Copyright (c) 2011, 2018 B. Malinowsky
+    Copyright (c) 2011, 2019 B. Malinowsky
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -139,7 +139,9 @@ static void trace_error(const char* msg, const char* msg2 = 0)
 }
 #else
 static void trace(const char* /*msg*/, const char* /*msg2*/= 0) {}
-static void dbg_out(const char* /*format*/, ...) {}
+#if !defined __APPLE__
+	static void dbg_out(const char* /*format*/, ...) {}
+#endif
 static void trace_error(const char* /*msg*/, const char* /*msg2*/= 0) {}
 #endif
 
@@ -1109,7 +1111,11 @@ static uint32_t isInputWaiting(JNIEnv* env, fd_t fd)
 
 static int32_t receiveTimeout = 500; // ms
 
+#if defined DEBUG
 static ssize_t read(fd_t fd, uint8_t* buffer, uint32_t off, uint32_t len)
+#else
+static ssize_t read(fd_t fd, uint8_t* buffer, uint32_t /*off*/, uint32_t len)
+#endif
 {
     trace("start read");
 
