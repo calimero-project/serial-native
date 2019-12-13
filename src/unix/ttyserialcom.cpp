@@ -52,6 +52,8 @@
 #include <sys/select.h>
 #include <signal.h> // kill
 
+#include <time.h>
+
 #if defined __APPLE__
 
 #if !defined TIOCMIWAIT
@@ -103,15 +105,46 @@ static const fd_t INVALID_FD = ((fd_t) -1);
 
 #if defined DEBUG
 
+static uint64_t timestamp_us() {
+#ifdef __MACH__
+	return 0;
+#else
+	struct timespec now;
+	clock_gettime(CLOCK_REALTIME, &now);
+
+	uint64_t us = now.tv_sec * 1000000 + now.tv_nsec / 1000;
+	return us;
+#endif
+}
+
+static uint64_t timestamp_diff(uint64_t start) {
+	uint64_t now = timestamp_us();
+	return now - start;
+}
+
+static const char* timestamp() {
+	static char buf[50];
+	buf[0] = 0;
+#ifdef __MACH__
+	return "0.000";
+#else
+	struct timespec now;
+	clock_gettime(CLOCK_REALTIME, &now);
+	sprintf(buf, "%ld.%03ld", now.tv_sec, now.tv_nsec / 1000000);
+	return buf;
+#endif
+}
+
 static void trace(const char* msg, const char* msg2 = 0)
 {
     const char* opt = msg2 != 0 ? msg2 : "";
     const char* space = msg2 != 0 ? " " : "";
 
-    printf("%s%s%s\n", msg, space, opt);
+    printf("[%s] %s%s%s\n", timestamp(), msg, space, opt);
     fflush(stdout);
 }
 
+#if !defined __APPLE__
 static void dbg_out(const char* format, ...)
 {
     va_list argptr;
@@ -120,6 +153,7 @@ static void dbg_out(const char* format, ...)
     vprintf(format, argptr);
     fflush(stdout);
 }
+#endif
 
 static void formatError(int error, char* buf, size_t size)
 {
@@ -132,11 +166,16 @@ static void trace_error(const char* msg, const char* msg2 = 0)
 {
     int error = errno;
     if (error != 0) {
-        char errmsg[256];
-        formatError(error, errmsg, 256);
+    	const uint32_t bufSize = 1024;
+        char errmsg[bufSize];
+        const char* opt = msg2 != 0 ? msg2 : "";
+        const char* space = msg2 != 0 ? " " : "";
+        int used = snprintf(errmsg, 1024, "%s%s%s", msg, space, opt);
+        formatError(error, errmsg + used, bufSize - used);
         trace(msg, errmsg);
     }
 }
+
 #else
 static void trace(const char* /*msg*/, const char* /*msg2*/= 0) {}
 #if !defined __APPLE__
@@ -155,7 +194,7 @@ static void throwException(JNIEnv* env, int error)
     // while strerror_r is thread-safe, it is not available on all systems
     //const char* str = strerror_r(error, msg, 100);
     const char* str = strerror(error);
-    strncpy(msg, str, size);
+    strncpy(msg, str, size - 1);
     jclass c = env->FindClass("Ljava/io/IOException;");
     env->ThrowNew(c, msg);
 }
@@ -256,7 +295,7 @@ static bool ensureLock(const char* port)
     const char* start = port;
     if (!strncmp(port, devPrefix, 5) && port[5])
         start = port + 5;
-    strncpy(name, start, size);
+    strncpy(name, start, size - 1);
 
     char pidFile[MaxFileNameLength];
     char lckFile[MaxFileNameLength];
@@ -1117,7 +1156,9 @@ static ssize_t read(fd_t fd, uint8_t* buffer, uint32_t off, uint32_t len)
 static ssize_t read(fd_t fd, uint8_t* buffer, uint32_t /*off*/, uint32_t len)
 #endif
 {
-    trace("start read");
+#if defined DEBUG
+	uint64_t start = timestamp_us();
+#endif
 
     fd_set input;
     const int maxFd = fd + 1;
@@ -1142,7 +1183,7 @@ static ssize_t read(fd_t fd, uint8_t* buffer, uint32_t /*off*/, uint32_t len)
                 break;
         }
         else if (n == 0) {
-            puts("read timeout");
+//            trace("read timeout");
             break;
         }
         else {
@@ -1174,11 +1215,12 @@ static ssize_t read(fd_t fd, uint8_t* buffer, uint32_t /*off*/, uint32_t len)
     char buf[1024];
     buf[0] = 0;
     uint8_t* pb = buffer + off;
-    //strcpy(buf, "data:");
-    int used = sprintf(buf, "data (%zu):", offset);
-    for (unsigned i = 0; i < offset; ++i)
-        snprintf(buf + used + 3 * i, 4, " %02X", *pb++);
-    trace("end read", buf);
+    if (offset > 0) {
+        int used = sprintf(buf, "read data [%llu us] (length %zu):", timestamp_diff(start), offset);
+        for (unsigned i = 0; i < offset; ++i)
+            snprintf(buf + used + 3 * i, 4, " %02X", *pb++);
+        trace(buf);
+    }
 #endif // DEBUG
     return offset;
 }
@@ -1375,6 +1417,7 @@ JNIEXPORT jint JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_getStat
         jobject obj, jint type)
 {
     trace("get status");
+
     fd_t fd = getFD(env, obj);
     uint32_t value = 0;
     int ret = 0;
@@ -1413,6 +1456,9 @@ JNIEXPORT jint JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_getStat
 
         // XXX
     }
+
+    trace("exit status");
+
     if (ret == -1)
         throwException(env, errno);
     return value;
