@@ -1182,6 +1182,14 @@ static ssize_t read(fd_t fd, uint8_t* buffer, uint32_t /*off*/, uint32_t len)
         else {
             // read received bytes from stream into buffer
             if (FD_ISSET(fd, &input)) {
+
+            	// get number of bytes that are immediately available for reading:
+            	// if 0, this indicates other errors, e.g., disconnected usb adapter
+            	size_t len = 0;
+                ioctl(fd, FIONREAD, &len);
+                if (len == 0)
+                    return -1;
+
                 ssize_t ret = read(fd, buffer + offset, remaining);
                 if (ret == -1) {
                     perror("read");
@@ -1230,6 +1238,8 @@ JNIEXPORT jint JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_readByt
     jbyte* pBuf = env->GetByteArrayElements(b, &iscopy);
     ssize_t r = read(getFD(env, obj), reinterpret_cast<uint8_t*>(pBuf), off, len);
     env->ReleaseByteArrayElements(b, pBuf, 0);
+    if (r == -1)
+        throwException(env, errno);
     return static_cast<jint>(r);
 }
 
@@ -1242,7 +1252,10 @@ JNIEXPORT jint JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_read(JN
         jobject obj)
 {
     uint8_t in = 0;
-    if (read(getFD(env, obj), &in, 0, 1) == 0)
+    ssize_t ret = read(getFD(env, obj), &in, 0, 1);
+    if (ret == -1)
+        throwException(env, errno);
+    else if (ret == 0)
         return -1;
     return in;
 }
