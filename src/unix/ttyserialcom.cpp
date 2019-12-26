@@ -155,13 +155,6 @@ static void dbg_out(const char* format, ...)
 }
 #endif
 
-static void formatError(int error, char* buf, size_t size)
-{
-    buf[0] = 0;
-    const char* str = strerror(error);
-    snprintf(buf, size, "%s (%i)", str, error);
-}
-
 static void trace_error(const char* msg, const char* msg2 = 0)
 {
     int error = errno;
@@ -170,9 +163,9 @@ static void trace_error(const char* msg, const char* msg2 = 0)
         char errmsg[bufSize];
         const char* opt = msg2 != 0 ? msg2 : "";
         const char* space = msg2 != 0 ? " " : "";
-        int used = snprintf(errmsg, 1024, "%s%s%s", msg, space, opt);
-        formatError(error, errmsg + used, bufSize - used);
-        trace(msg, errmsg);
+        const char* str = strerror(error);
+        snprintf(errmsg, 1024, "%s%s%s: %s (%i)", msg, space, opt, str, error);
+        trace(errmsg);
     }
 }
 
