@@ -1007,7 +1007,7 @@ JNIEXPORT jint JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_setCont
         throwException(env, errno);
     else {
         if (ctrl == BAUDRATE) {
-            old = getGenericBaudrate(options.c_ispeed);
+            old = getGenericBaudrate(cfgetispeed(&options));
             int baudrate = getTermiosBaudrate(newValue);
             cfsetispeed(&options, baudrate);
             cfsetospeed(&options, baudrate);
