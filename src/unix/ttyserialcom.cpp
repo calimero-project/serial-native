@@ -1,6 +1,6 @@
 /*
     Calimero 2 - A library for KNX network access
-    Copyright (c) 2011, 2019 B. Malinowsky
+    Copyright (c) 2011, 2021 B. Malinowsky
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -543,9 +543,10 @@ JNIEXPORT jboolean JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_por
 JNIEXPORT void JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_open(JNIEnv* env,
         jobject obj, jstring portID)
 {
-    fd_t fd = openPort(env, portID, true, 0);
+    int error;
+    fd_t fd = openPort(env, portID, true, &error);
     if (fd == INVALID_FD)
-        throwException(env, errno);
+        throwException(env, error);
     else {
         setFD(env, obj, fd);
 #if defined DEBUG
