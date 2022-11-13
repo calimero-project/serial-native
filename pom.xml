@@ -7,7 +7,7 @@
 		<version>2.6-SNAPSHOT</version>
 	</parent>
 	<artifactId>serial-native</artifactId>
-	<packaging>nar</packaging>
+	<packaging>pom</packaging>
 	<name>Serial (native)</name>
 	<description>Libraries for serial port access using JNI</description>
 	<scm>
@@ -30,8 +30,8 @@
 
 	<properties>
 		<compile.debug>false</compile.debug>
-<!--		<java.home>/Library/Java/JavaVirtualMachines/jdk-11.0.5.jdk/Contents/Home</java.home> -->
-		<java.home>/usr/lib/jvm/jdk-11</java.home>
+			<java.home>/Library/Java/JavaVirtualMachines/liberica-jdk-17.jdk/Contents/Home</java.home>
+<!--		<java.home>/usr/lib/jvm/jdk-11</java.home>-->
 	</properties>
 
 	<build>
@@ -78,9 +78,8 @@
 					</cpp>
 					<linker>
 						<options>
-							<!-- on OS X -s should be ignored but isn't, causes internal linker error -->
-<!-- 							<option>-s</option> -->
-<!-- 							<option>-dynamiclib</option> -->
+							<option>-s</option>
+<!--							<option>-dynamiclib</option> -->
 						</options>
 					</linker>
 					<libraries>

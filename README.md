@@ -14,7 +14,7 @@ For Linux, macOS, Windows; ARM(v7) is not working. The compiled library can be f
 ### Build with Maven
 For Linux, macOS, Windows, ARMv7. The compiled library can be found in the _target/nar_ directory.
 
-    mvn compile
+    mvn nar:nar-compile
 
 The `nar` maven plugin supports compiling native code on a number of different architectures. Currently, the POM contains settings for Linux and macOS, which need to be adjusted depending on Java version and directory. To skip running any nar plugins, use `-Dnar.skip=true`.
 
