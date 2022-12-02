@@ -34,57 +34,41 @@
     version.
 */
 
-package io.calimero.serial;
+package io.calimero.serial.provider.ffm;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-/**
- * Input stream for a serial port.
- *
- * @author B. Malinowsky
- */
-class PortInputStream extends InputStream
-{
-	private final SerialComAdapter p;
+class PortInputStream extends InputStream {
+	private final TtySerialCom com;
 
-	/**
-	 * Creates a new input stream for {@code port}.
-	 *
-	 * @param port open port for input
-	 */
-	PortInputStream(final SerialComAdapter port)
-	{
-		p = port;
+	PortInputStream(final TtySerialCom com) {
+		this.com = com;
 	}
 
 	@Override
-	public int read() throws IOException
-	{
-		return p.read();
+	public int read() throws IOException {
+		return com.read();
 	}
 
 	@Override
-	public int read(final byte[] b) throws IOException
-	{
+	public int read(final byte[] b) throws IOException {
 		if (b == null)
 			throw new NullPointerException();
-		return p.readBytes(b, 0, b.length);
+		return com.readBytes(b, 0, b.length);
 	}
 
 	@Override
-	public int read(final byte[] b, final int off, final int len) throws IOException
-	{
+	public int read(final byte[] b, final int off, final int len) throws IOException {
 		if (b == null)
 			throw new NullPointerException();
 		if (off < 0 || len < 0 || len > b.length - off)
 			throw new IndexOutOfBoundsException();
-		return p.readBytes(b, off, len);
+		return com.readBytes(b, off, len);
 	}
 
 	@Override
-	public int available()
-	{
-		return p.getStatus(SerialComAdapter.AVAILABLE_INPUT_STATUS);
+	public int available() throws IOException {
+		return com.getStatus(TtySerialCom.AVAILABLE_INPUT_STATUS);
 	}
 }

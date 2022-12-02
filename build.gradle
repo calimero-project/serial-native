@@ -1,8 +1,7 @@
 plugins {
-    id 'cpp-library'
     id 'java-library'
-    id 'visual-studio'
     id 'maven-publish'
+    id "io.github.krakowski.jextract" version "0.3.1"
 }
 
 repositories {
@@ -13,10 +12,12 @@ repositories {
 group = 'io.calimero'
 version = '2.6-SNAPSHOT'
 
-sourceCompatibility = 11
-targetCompatibility = 11
+ext.junitJupiterVersion = '5.9.1'
 
 java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(19))
+    }
     withSourcesJar()
     withJavadocJar()
 }
@@ -25,16 +26,23 @@ compileJava.options.encoding = 'UTF-8'
 compileTestJava.options.encoding = 'UTF-8'
 javadoc.options.encoding = 'UTF-8'
 
-
 compileJava.options*.compilerArgs = [
 	'-Xlint:all,-serial',
-	"--limit-modules", "java.base"
+	"--limit-modules", "java.base",
+	"--enable-preview"
 ]
 
 compileTestJava.options*.compilerArgs = [
 	'-Xlint:all',
 	'-Xlint:-try',
+	"--enable-preview"
 ]
+
+tasks.withType(Javadoc) {
+    options.addStringOption("Xdoclint:-missing", '-quiet')
+    options.addBooleanOption('-enable-preview', true)
+	options.addStringOption("-release", "${targetCompatibility}")
+}
 
 tasks.withType(Jar) {
 	from("${projectDir}") {
@@ -42,100 +50,44 @@ tasks.withType(Jar) {
         into "META-INF"
     }
     if (name.equals('sourcesJar')) {
+    	duplicatesStrategy = 'EXCLUDE'
     	from("${projectDir}") {
 		    include 'README.md', 'build.gradle', 'settings.gradle', 'gradle*/**'
         }
     }
 }
 
-tasks.withType(Javadoc) {
-    options.addStringOption("Xdoclint:-missing", '-quiet')
+test {
+	useJUnitPlatform() {
+		testLogging {
+			exceptionFormat "full"
+//			showStandardStreams true
+		}
+	}
+	jvmArgs(['--enable-preview'])
 }
 
+tasks.withType(JavaExec) { jvmArgs += "--enable-preview" }
 
 
-// set this variable manually to Java home directory if default location does not work
-def javaHome = System.properties['java.home']
-def cppStd = "-std=c++17"
+//project.gradle.startParameter.excludedTaskNames.add("jextract")
 
-import org.gradle.internal.os.OperatingSystem;
-def os = OperatingSystem.current()
+jextract {
+	def path = "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include"
 
-library {
-    println "Platform " + os
-    println "Java home directory = ${javaHome}"
-
-    source {
-        if (os.isWindows())
-            from fileTree(dir: "src/win", include: "**/*.cpp")
-        else // linux, macos
-            from fileTree(dir: "src/unix", include: "**/*.cpp")
-    }
-
-    privateHeaders {
-        from("src/include", "${javaHome}/include", "${javaHome}/../include")
-        def osSpecificInclude = os.isLinux() ? 'linux' : os.isMacOsX() ? 'darwin' : os.isWindows() ? 'win32' : ''
-        from("${javaHome}/include/${osSpecificInclude}", "${javaHome}/../include/${osSpecificInclude}")
-    }
-
-    linkage = [ Linkage.SHARED ]
-
-    binaries.configureEach {
-        def compileTask = compileTask.get()
-        compileTask.positionIndependentCode = "true"
-        
-        if ((toolChain in Clang || toolChain in Gcc) && !compileTask.isOptimized()) {
-            // maybe -O0 works better, -Og still does several optimizations
-            // option "-g" is included by default
-            compileTask.compilerArgs = [ cppStd, "-Wall", "-Og" ]
-        }
-
-        if (toolChain in Clang && compileTask.isOptimized()) {
-            compileTask.debuggable = "false"
-            // "-Wl,-s" not necessary
-            compileTask.compilerArgs = [ cppStd, "-Wall", "-Oz", "-fno-cxx-exceptions" ]
-        }
-        if (toolChain in Gcc && compileTask.isOptimized()) {
-            compileTask.debuggable = "false"
-            // "-Wl,-s" not necessary
-            compileTask.compilerArgs = [ cppStd, "-Wall", "-Os", "-fno-exceptions" ]
-        }
-
-        if (toolChain in VisualCpp && !compileTask.isOptimized()) {
-            // '/Zi' already included
-            compileTask.compilerArgs = [ '/DDEBUG', "/Wall" ]
-            def linkTask = linkTask.get()
-            linkTask.linkerArgs = [ '/DEBUG' ]
-        }
-        if (toolChain in VisualCpp && compileTask.isOptimized()) {
-            compileTask.debuggable = "false"
-            compileTask.compilerArgs = [ '/Os', "/Wall" ]
-        }
-
-        def compile = compileTask.isOptimized() ? "release" : "debug"
-        println "Additional compiler args for ${compile} version: " + compileTask.compilerArgs.get()
-    }
-}
-
-if (!os.isWindows()) {
-    // always build debug/release(+stripped) versions
-    build.dependsOn { stripSymbolsRelease }
+	header("${project.projectDir}/src/include/headers.h") {
+		includes = [ "$path" ]
+		targetPackage = 'org.unix'
+		className = 'Linux'
+	}
 }
 
 dependencies {
-    // both cpp-library and java-library plugin use api & implementation configurations, 
-    // hence cpp-library tries to resolve java dependencies, workaround with configurations not known by cpp
-//    api "com.github.calimero:calimero-core:${version}"
-    compileOnly "com.github.calimero:calimero-core:${version}"
-    runtimeOnly "com.github.calimero:calimero-core:${version}"
-//    implementation 'org.slf4j:slf4j-api:1.7.36'
-    compileOnly 'org.slf4j:slf4j-api:1.7.36'
-    runtimeOnly 'org.slf4j:slf4j-api:1.7.36'
+    api "com.github.calimero:calimero-core:${version}"
+    implementation 'org.slf4j:slf4j-api:1.7.36'
+    testRuntimeOnly 'org.slf4j:slf4j-simple:1.7.36'
+    testImplementation "org.junit.jupiter:junit-jupiter:${junitJupiterVersion}"
 }
-
-// don't publish the cpp artifacts
-generateMetadataFileForMainPublication.enabled = false
-publishMainPublicationToMavenLocal.enabled = false
 
 publishing {
     publications {

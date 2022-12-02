@@ -34,51 +34,36 @@
     version.
 */
 
-package io.calimero.serial;
+package io.calimero.serial.provider.ffm;
 
 import java.io.IOException;
 import java.io.OutputStream;
 
-/**
- * Output stream for a serial port.
- *
- * @author B. Malinowsky
- */
-class PortOutputStream extends OutputStream
-{
-	private final SerialComAdapter p;
+class PortOutputStream extends OutputStream {
+	private final TtySerialCom com;
 
-	/**
-	 * Creates a new output stream for {@code port}.
-	 *
-	 * @param port open port for output
-	 */
-	PortOutputStream(final SerialComAdapter port)
-	{
-		p = port;
+	PortOutputStream(final TtySerialCom com) {
+		this.com = com;
 	}
 
 	@Override
-	public void write(final int b) throws IOException
-	{
-		p.write(b);
+	public void write(final int b) throws IOException {
+		com.write(b);
 	}
 
 	@Override
-	public void write(final byte[] b) throws IOException
-	{
+	public void write(final byte[] b) throws IOException {
 		if (b == null)
 			throw new NullPointerException();
-		p.writeBytes(b, 0, b.length);
+		com.writeBytes(b, 0, b.length);
 	}
 
 	@Override
-	public void write(final byte[] b, final int off, final int len) throws IOException
-	{
+	public void write(final byte[] b, final int off, final int len) throws IOException {
 		if (b == null)
 			throw new NullPointerException();
 		if (off < 0 || off > b.length || len < 0 || off + len > b.length || off + len < 0)
 			throw new IndexOutOfBoundsException();
-		p.writeBytes(b, off, len);
+		com.writeBytes(b, off, len);
 	}
 }

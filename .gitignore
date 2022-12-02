@@ -1,20 +1,5 @@
-# Object files
-*.o
-
-# Libraries
-*.lib
-*.a
-
-# Shared objects (inc. Windows DLLs)
-*.so.*
-*.dylib
-
-# Executables
-*.exe
-*.out
-*.app
-
 /target/
+/bin/
 
 # Gradle
 .gradle
