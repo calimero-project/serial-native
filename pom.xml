@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.github.calimero</groupId>
 		<artifactId>calimero-parent</artifactId>
-		<version>2.6-SNAPSHOT</version>
+		<version>2.5.1</version>
 	</parent>
 	<artifactId>serial-native</artifactId>
 	<packaging>pom</packaging>
@@ -30,8 +30,8 @@
 
 	<properties>
 		<compile.debug>false</compile.debug>
-			<java.home>/Library/Java/JavaVirtualMachines/liberica-jdk-17.jdk/Contents/Home</java.home>
-<!--		<java.home>/usr/lib/jvm/jdk-11</java.home>-->
+<!--		<java.home>/Library/Java/JavaVirtualMachines/liberica-jdk-17.jdk/Contents/Home</java.home>-->
+		<java.home>/usr/lib/jvm/jdk-17</java.home>
 	</properties>
 
 	<build>

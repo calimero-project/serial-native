@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'com.github.calimero'
-version = '2.6-SNAPSHOT'
+version = '2.5.1'
 
 // set this variable manually to Java home directory if default location does not work
 def javaHome = System.properties['java.home']
