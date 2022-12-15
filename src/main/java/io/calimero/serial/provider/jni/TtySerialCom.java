@@ -34,35 +34,31 @@
     version.
 */
 
-package io.calimero.serial;
+package io.calimero.serial.provider.jni;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
+import java.time.Duration;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.IntStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import tuwien.auto.calimero.KnxRuntimeException;
-import tuwien.auto.calimero.serial.LibraryAdapter;
 import tuwien.auto.calimero.serial.spi.SerialCom;
 
 /**
- * Adapter for serial communication using a Calimero library platform dependent library API.
- * <p>
- * The implementation of this API contains platform dependent code. It is used as a
- * fallback to enable serial communication on a RS-232 port in case the runtime default
- * access mechanism are not available or there is no protocol support.
+ * Provider for serial communication implemented using JNI. The implementation of this API contains platform dependent
+ * code.
  *
  * @author B. Malinowsky
  */
-@SuppressWarnings("checkstyle:finalparameters")
-public class SerialComAdapter implements SerialCom
-{
+final class TtySerialCom implements SerialCom {
+	private static final String loggerName = "io.calimero.serial.provider.jni";
+
 	// ctrl identifiers
 	static final int BAUDRATE = 1;
 	static final int PARITY = 2;
@@ -118,7 +114,14 @@ public class SerialComAdapter implements SerialCom
 	// #define CE_TXFULL 0x0100 // TX Queue is full
 	// #define CE_MODE 0x8000 // Requested mode unsupported
 
-	private static final boolean loaded;
+	private static final List<String> defaultPortPrefixes = System.getProperty("os.name").toLowerCase(Locale.ENGLISH)
+			.indexOf("windows") > -1 ? List.of("\\\\.\\COM")
+					: List.of("/dev/ttyS", "/dev/ttyACM", "/dev/ttyUSB", "/dev/ttyAMA");
+
+	static List<String> defaultPortPrefixes() { return defaultPortPrefixes; }
+
+
+	static final boolean loaded;
 	private static final int INVALID_HANDLE = -1;
 
 	private long fd = INVALID_HANDLE;
@@ -129,18 +132,15 @@ public class SerialComAdapter implements SerialCom
 
 	private final Logger logger;
 
-	static final class Timeouts
-	{
+	static final class Timeouts {
 		final int readInterval;
 		final int readTotalMultiplier;
 		final int readTotalConstant;
 		final int writeTotalMultiplier;
 		final int writeTotalConstant;
 
-		Timeouts(final int readInterval, final int readTotalMultiplier,
-			final int readTotalConstant, final int writeTotalMultiplier,
-			final int writeTotalConstant)
-		{
+		Timeouts(final int readInterval, final int readTotalMultiplier, final int readTotalConstant,
+				final int writeTotalMultiplier, final int writeTotalConstant) {
 			this.readInterval = readInterval;
 			this.readTotalMultiplier = readTotalMultiplier;
 			this.readTotalConstant = readTotalConstant;
@@ -149,45 +149,43 @@ public class SerialComAdapter implements SerialCom
 		}
 
 		@Override
-		public String toString()
-		{
-			return "read " + readInterval + " read total " + readTotalMultiplier + " constant "
-					+ readTotalConstant + " write total " + writeTotalMultiplier
-					+ " write constant " + writeTotalConstant;
+		public String toString() {
+			return "read " + readInterval + " read total " + readTotalMultiplier + " constant " + readTotalConstant
+					+ " write total " + writeTotalMultiplier + " write constant " + writeTotalConstant;
 		}
 	}
 
 	static {
 		boolean b = false;
 		try {
-			LoggerFactory.getLogger("calimero.serial").trace("check Java library path {}", System.getProperty("java.library.path"));
+			LoggerFactory.getLogger(loggerName).trace("check Java library path {}", System.getProperty("java.library.path"));
 			System.loadLibrary("serialcom");
 			b = true;
 		}
 		catch (SecurityException | UnsatisfiedLinkError e) {
-			LoggerFactory.getLogger("calimero.serial").debug(e.getMessage());
+			LoggerFactory.getLogger(loggerName).debug(e.getMessage());
 		}
 		loaded = b;
 	}
 
-	public SerialComAdapter() {
+	public TtySerialCom() {
 		if (!loaded)
 			throw new KnxRuntimeException("no serialcom library found");
-		logger = LoggerFactory.getLogger("calimero.serial");
+		logger = LoggerFactory.getLogger(loggerName);
+	}
+
+	TtySerialCom(final String portId, final int baudrate, final int databits, final StopBits stopbits,
+			final Parity parity, final FlowControl mode, final Duration idleTimeout) throws IOException {
+		if (!loaded)
+			throw new KnxRuntimeException("no serialcom library found");
+		logger = LoggerFactory.getLogger(loggerName + ":" + portId);
+		open(portId);
+		setSerialPortParams(baudrate, databits, stopbits, parity);
+		setFlowControlMode(mode);
+		setTimeouts(new Timeouts((int) idleTimeout.toMillis(), 0, 5, 0, 0));
 	}
 
 	static native boolean portExists(String portId);
-
-	@Override
-	public List<String> portIdentifiers() {
-		if (!loaded)
-			return List.of();
-
-		final List<String> ports = new ArrayList<>();
-		LibraryAdapter.defaultPortPrefixes().forEach(p -> IntStream.range(0, 20).mapToObj(i -> p + i)
-				.filter(SerialComAdapter::portExists).forEach(ports::add));
-		return ports;
-	}
 
 	native int writeBytes(byte[] b, int off, int len) throws IOException;
 
@@ -198,16 +196,14 @@ public class SerialComAdapter implements SerialCom
 	// return of -1 indicates timeout
 	native int read() throws IOException;
 
-	@Override
-	public void setSerialPortParams(final int baudrate, final int databits, final StopBits stopbits, final Parity parity)
-			throws IOException {
+	public void setSerialPortParams(final int baudrate, final int databits, final StopBits stopbits,
+			final Parity parity) throws IOException {
 		setControl(BAUDRATE, baudrate);
 		setControl(DATABITS, 8);
 		setControl(STOPBITS, stopbits.value());
 		setControl(PARITY, parity.value());
 	}
 
-	@Override
 	public void setFlowControlMode(final FlowControl mode) throws IOException {
 		setControl(FLOWCTRL, mode.value());
 	}
@@ -254,10 +250,9 @@ public class SerialComAdapter implements SerialCom
 		}
 	}
 
-	// any open input/output stream accessing this port becomes unusable
 	@Override
-	public final void close()
-	{
+	public final void close() {
+		// any open input/output stream accessing this port becomes unusable
 		try {
 			if (fd != INVALID_HANDLE)
 				close0();
@@ -273,8 +268,8 @@ public class SerialComAdapter implements SerialCom
 		if (fd == INVALID_HANDLE)
 			return "closed";
 		try {
-			return "baudrate " + baudRate() + ", even parity, " + getControl(SerialComAdapter.DATABITS)
-					+ " databits, " + getControl(SerialComAdapter.STOPBITS) + " stopbits, timeouts: " + getTimeouts();
+			return "baudrate " + baudRate() + ", even parity, " + getControl(TtySerialCom.DATABITS) + " databits, "
+					+ getControl(TtySerialCom.STOPBITS) + " stopbits, timeouts: " + getTimeouts();
 		}
 		catch (final IOException e) {
 			return "invalid port setup";
@@ -285,7 +280,6 @@ public class SerialComAdapter implements SerialCom
 
 	private native int waitEvent() throws IOException;
 
-	@Override
 	public native void open(String portId) throws IOException;
 
 	private native void close0() throws IOException;

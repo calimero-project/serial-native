@@ -78,6 +78,7 @@ library {
         from("${javaHome}/include/${osSpecificInclude}", "${javaHome}/../include/${osSpecificInclude}")
     }
 
+    baseName = "serialcom"
     linkage = [ Linkage.SHARED ]
 
     binaries.configureEach {
@@ -87,7 +88,7 @@ library {
         if ((toolChain in Clang || toolChain in Gcc) && !compileTask.isOptimized()) {
             // maybe -O0 works better, -Og still does several optimizations
             // option "-g" is included by default
-            compileTask.compilerArgs = [ cppStd, "-Wall", "-Og" ]
+            compileTask.compilerArgs = [ cppStd, "-DDEBUG", "-Wall", "-Og" ]
         }
 
         if (toolChain in Clang && compileTask.isOptimized()) {

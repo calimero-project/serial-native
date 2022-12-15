@@ -1,6 +1,6 @@
 /*
     Calimero 2 - A library for KNX network access
-    Copyright (c) 2007, 2014 B. Malinowsky
+    Copyright (c) 2007, 2022 B. Malinowsky
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -18,10 +18,10 @@
 */
 
 //  This file is part of Calimero 2, a library for KNX network access.
-//  It provides Java Native Interface (JNI) access to the Microsoft Windows 
+//  It provides Java Native Interface (JNI) access to the Microsoft Windows
 //  serial port communication I/O API.
 //
-//  To generate the .dll, compile and link this file using your favorite C++ 
+//  To generate the .dll, compile and link this file using your favorite C++
 //  compiler or IDE, e.g., MS VS or gcc/ld with cygwin.
 //
 
@@ -55,7 +55,7 @@ static void FormatError(DWORD error, wchar_t* buf, int size)
 
 static void Trace(const wchar_t* msg, const wchar_t* msg2 = 0)
 {
-	wchar_t* opt = msg2 != 0 ? msg2 : L"";
+	const wchar_t* opt = msg2 != 0 ? msg2 : L"";
 	wchar_t out[512];
     DWORD error = GetLastError();
 	if (error != NO_ERROR && error != ERROR_IO_PENDING) {
@@ -115,11 +115,11 @@ static bool Close(JNIEnv* env, jobject obj)
 }
 
 /*
- * Class:     tuwien_auto_calimero_serial_SerialComAdapter
+ * Class:     io_calimero_serial_provider_jni_TtySerialCom
  * Method:    portExists
  * Signature: (Ljava/lang/String;)Z
  */
-JNIEXPORT jboolean JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_portExists
+JNIEXPORT jboolean JNICALL Java_io_calimero_serial_provider_jni_TtySerialCom_portExists
   (JNIEnv* env, jclass /*c*/, jstring portID)
 {
 	DWORD error;
@@ -134,11 +134,11 @@ JNIEXPORT jboolean JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_por
 }
 
 /*
- * Class:     tuwien_auto_calimero_serial_SerialComAdapter
+ * Class:     io_calimero_serial_provider_jni_TtySerialCom
  * Method:    open
  * Signature: (Ljava/lang/String;)V
  */
-JNIEXPORT void JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_open
+JNIEXPORT void JNICALL Java_io_calimero_serial_provider_jni_TtySerialCom_open
   (JNIEnv* env, jobject obj, jstring portID)
 {
 	HANDLE h = Open(env, portID, true, 0);
@@ -167,33 +167,33 @@ JNIEXPORT void JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_open
 }
 
 /*
- * Class:     tuwien_auto_calimero_serial_SerialComAdapter
+ * Class:     io_calimero_serial_provider_jni_TtySerialCom
  * Method:    close0
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_close0
+JNIEXPORT void JNICALL Java_io_calimero_serial_provider_jni_TtySerialCom_close0
   (JNIEnv* env, jobject obj)
 {
 	if (!Close(env, obj))
 		ThrowException(env, QUERY_GETLASTERROR);
 }
 
-static const int BAUDRATE = tuwien_auto_calimero_serial_SerialComAdapter_BAUDRATE;
-static const int PARITY = tuwien_auto_calimero_serial_SerialComAdapter_PARITY;
-static const int DATABITS = tuwien_auto_calimero_serial_SerialComAdapter_DATABITS;
-static const int STOPBITS = tuwien_auto_calimero_serial_SerialComAdapter_STOPBITS;
-static const int FLOWCTRL = tuwien_auto_calimero_serial_SerialComAdapter_FLOWCTRL;
+static const int BAUDRATE = io_calimero_serial_provider_jni_TtySerialCom_BAUDRATE;
+static const int PARITY = io_calimero_serial_provider_jni_TtySerialCom_PARITY;
+static const int DATABITS = io_calimero_serial_provider_jni_TtySerialCom_DATABITS;
+static const int STOPBITS = io_calimero_serial_provider_jni_TtySerialCom_STOPBITS;
+static const int FLOWCTRL = io_calimero_serial_provider_jni_TtySerialCom_FLOWCTRL;
 
 #undef STOPBITS_10
 #undef STOPBITS_15
 #undef STOPBITS_20
 
-static const int STOPBITS_10 = tuwien_auto_calimero_serial_SerialComAdapter_ONE_STOPBIT;
+static const int STOPBITS_10 = io_calimero_serial_provider_jni_TtySerialCom_ONE_STOPBIT;
 static const int STOPBITS_15 = 3;
-static const int STOPBITS_20 = tuwien_auto_calimero_serial_SerialComAdapter_TWO_STOPBITS;
+static const int STOPBITS_20 = io_calimero_serial_provider_jni_TtySerialCom_TWO_STOPBITS;
 
-static const int FLOWCTRL_NONE = tuwien_auto_calimero_serial_SerialComAdapter_FLOWCTRL_NONE;
-static const int FLOWCTRL_CTSRTS = tuwien_auto_calimero_serial_SerialComAdapter_FLOWCTRL_CTSRTS;
+static const int FLOWCTRL_NONE = io_calimero_serial_provider_jni_TtySerialCom_FLOWCTRL_NONE;
+static const int FLOWCTRL_CTSRTS = io_calimero_serial_provider_jni_TtySerialCom_FLOWCTRL_CTSRTS;
 
 static BYTE GetPlatformStopBits(int stopbits)
 {
@@ -216,11 +216,11 @@ static int GetGenericStopBits(int stopbits)
 }
 
 /*
- * Class:     tuwien_auto_calimero_serial_SerialComAdapter
+ * Class:     io_calimero_serial_provider_jni_TtySerialCom
  * Method:    setControl
  * Signature: (II)I
  */
-JNIEXPORT jint JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_setControl
+JNIEXPORT jint JNICALL Java_io_calimero_serial_provider_jni_TtySerialCom_setControl
   (JNIEnv* env, jobject obj, jint control, jint newValue)
 {
 	HANDLE h = GetFD(env, obj);
@@ -278,11 +278,11 @@ JNIEXPORT jint JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_setCont
 }
 
 /*
- * Class:     tuwien_auto_calimero_serial_SerialComAdapter
+ * Class:     io_calimero_serial_provider_jni_TtySerialCom
  * Method:    getControl
  * Signature: (I)I
  */
-JNIEXPORT jint JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_getControl
+JNIEXPORT jint JNICALL Java_io_calimero_serial_provider_jni_TtySerialCom_getControl
   (JNIEnv* env, jobject obj, jint control)
 {
 	HANDLE h = GetFD(env, obj);
@@ -343,11 +343,11 @@ static int Write(JNIEnv* env, HANDLE h, PBYTE pBuf, long off, long len)
 
 
 /*
- * Class:     tuwien_auto_calimero_serial_SerialComAdapter
+ * Class:     io_calimero_serial_provider_jni_TtySerialCom
  * Method:    writeBytes
  * Signature: ([BII)I
  */
-JNIEXPORT jint JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_writeBytes
+JNIEXPORT jint JNICALL Java_io_calimero_serial_provider_jni_TtySerialCom_writeBytes
   (JNIEnv* env, jobject obj, jbyteArray buf, jint off, jint len)
 {
 	jboolean iscopy;
@@ -356,11 +356,11 @@ JNIEXPORT jint JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_writeBy
 }
 
 /*
- * Class:     tuwien_auto_calimero_serial_SerialComAdapter
+ * Class:     io_calimero_serial_provider_jni_TtySerialCom
  * Method:    write
  * Signature: (I)I
  */
-JNIEXPORT jint JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_write
+JNIEXPORT jint JNICALL Java_io_calimero_serial_provider_jni_TtySerialCom_write
   (JNIEnv* env, jobject obj, jint byte)
 {
 	BYTE out = static_cast<BYTE>(byte);
@@ -391,11 +391,11 @@ static int Read(JNIEnv* env, HANDLE h, PBYTE pBuf, long off, long len)
 }
 
 /*
- * Class:     tuwien_auto_calimero_serial_SerialComAdapter
+ * Class:     io_calimero_serial_provider_jni_TtySerialCom
  * Method:    readBytes
  * Signature: ([BII)I
  */
-JNIEXPORT jint JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_readBytes
+JNIEXPORT jint JNICALL Java_io_calimero_serial_provider_jni_TtySerialCom_readBytes
   (JNIEnv* env, jobject obj, jbyteArray b, jint off, jint len)
 {
 	jboolean iscopy;
@@ -406,11 +406,11 @@ JNIEXPORT jint JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_readByt
 }
 
 /*
- * Class:     tuwien_auto_calimero_serial_SerialComAdapter
+ * Class:     io_calimero_serial_provider_jni_TtySerialCom
  * Method:    read
  * Signature: ()I
  */
-JNIEXPORT jint JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_read
+JNIEXPORT jint JNICALL Java_io_calimero_serial_provider_jni_TtySerialCom_read
   (JNIEnv* env, jobject obj)
 {
 	BYTE in = 0;
@@ -420,11 +420,11 @@ JNIEXPORT jint JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_read
 }
 
 /*
- * Class:     tuwien_auto_calimero_serial_SerialComAdapter
+ * Class:     io_calimero_serial_provider_jni_TtySerialCom
  * Method:    setEvents
  * Signature: (IZ)V
  */
-JNIEXPORT void JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_setEvents
+JNIEXPORT void JNICALL Java_io_calimero_serial_provider_jni_TtySerialCom_setEvents
   (JNIEnv* env, jobject obj, jint eventMask, jboolean enable)
 {
 	HANDLE h = GetFD(env, obj);
@@ -440,11 +440,11 @@ JNIEXPORT void JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_setEven
 }
 
 /*
- * Class:     tuwien_auto_calimero_serial_SerialComAdapter
+ * Class:     io_calimero_serial_provider_jni_TtySerialCom
  * Method:    waitEvent
  * Signature: ()I
  */
-JNIEXPORT jint JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_waitEvent
+JNIEXPORT jint JNICALL Java_io_calimero_serial_provider_jni_TtySerialCom_waitEvent
   (JNIEnv* env, jobject obj)
 {
 	HANDLE h = GetFD(env, obj);
@@ -462,16 +462,16 @@ JNIEXPORT jint JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_waitEve
 	return event;
 }
 
-static const int LINE_STATUS = tuwien_auto_calimero_serial_SerialComAdapter_LINE_STATUS;
-static const int ERROR_STATUS = tuwien_auto_calimero_serial_SerialComAdapter_ERROR_STATUS;
-static const int INPUT_AVAIL = tuwien_auto_calimero_serial_SerialComAdapter_AVAILABLE_INPUT_STATUS;
+static const int LINE_STATUS = io_calimero_serial_provider_jni_TtySerialCom_LINE_STATUS;
+static const int ERROR_STATUS = io_calimero_serial_provider_jni_TtySerialCom_ERROR_STATUS;
+static const int INPUT_AVAIL = io_calimero_serial_provider_jni_TtySerialCom_AVAILABLE_INPUT_STATUS;
 
 /*
- * Class:     tuwien_auto_calimero_serial_SerialComAdapter
+ * Class:     io_calimero_serial_provider_jni_TtySerialCom
  * Method:    getStatus
  * Signature: (I)I
  */
-JNIEXPORT jint JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_getStatus
+JNIEXPORT jint JNICALL Java_io_calimero_serial_provider_jni_TtySerialCom_getStatus
   (JNIEnv* env, jobject obj, jint type)
 {
 	HANDLE h = GetFD(env, obj);
@@ -500,11 +500,11 @@ static int GetInt(JNIEnv* env, jobject obj, const char* name)
 }
 
 /*
- * Class:     tuwien_auto_calimero_serial_SerialComAdapter
+ * Class:     io_calimero_serial_provider_jni_TtySerialCom
  * Method:    setTimeouts
- * Signature: (Ltuwien/auto/calimero/serial/SerialComAdapter/Timeouts;)V
+ * Signature: (Lio/calimero/serial/provider/jni/TtySerialCom/Timeouts;)V
  */
-JNIEXPORT void JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_setTimeouts
+JNIEXPORT void JNICALL Java_io_calimero_serial_provider_jni_TtySerialCom_setTimeouts
   (JNIEnv* env, jobject obj, jobject timeouts)
 {
 	COMMTIMEOUTS to;
@@ -518,11 +518,11 @@ JNIEXPORT void JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_setTime
 }
 
 /*
- * Class:     tuwien_auto_calimero_serial_SerialComAdapter
+ * Class:     io_calimero_serial_provider_jni_TtySerialCom
  * Method:    getTimeouts
- * Signature: ()Ltuwien/auto/calimero/serial/SerialComAdapter/Timeouts;
+ * Signature: ()Lio/calimero/serial/provider/jni/TtySerialCom/Timeouts;
  */
-JNIEXPORT jobject JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_getTimeouts
+JNIEXPORT jobject JNICALL Java_io_calimero_serial_provider_jni_TtySerialCom_getTimeouts
   (JNIEnv* env, jobject obj)
 {
 	COMMTIMEOUTS to;
@@ -530,7 +530,7 @@ JNIEXPORT jobject JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_getT
 	if (!GetCommTimeouts(GetFD(env, obj), &to))
 		ThrowException(env, QUERY_GETLASTERROR);
 	else {
-		jclass cls = env->FindClass("Ltuwien/auto/calimero/serial/SerialComAdapter$Timeouts;");
+		jclass cls = env->FindClass("Lio/calimero/serial/provider/jni/TtySerialCom$Timeouts;");
 		jmethodID ctor = env->GetMethodID(cls, "<init>", "(IIIII)V");
 		timeouts = env->NewObject(cls, ctor, to.ReadIntervalTimeout,
 			to.ReadTotalTimeoutMultiplier, to.ReadTotalTimeoutConstant,

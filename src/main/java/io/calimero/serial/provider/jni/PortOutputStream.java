@@ -34,7 +34,7 @@
     version.
 */
 
-package io.calimero.serial;
+package io.calimero.serial.provider.jni;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -44,37 +44,27 @@ import java.io.OutputStream;
  *
  * @author B. Malinowsky
  */
-class PortOutputStream extends OutputStream
-{
-	private final SerialComAdapter p;
+final class PortOutputStream extends OutputStream {
+	private final TtySerialCom p;
 
-	/**
-	 * Creates a new output stream for {@code port}.
-	 *
-	 * @param port open port for output
-	 */
-	PortOutputStream(final SerialComAdapter port)
-	{
+	PortOutputStream(final TtySerialCom port) {
 		p = port;
 	}
 
 	@Override
-	public void write(final int b) throws IOException
-	{
+	public void write(final int b) throws IOException {
 		p.write(b);
 	}
 
 	@Override
-	public void write(final byte[] b) throws IOException
-	{
+	public void write(final byte[] b) throws IOException {
 		if (b == null)
 			throw new NullPointerException();
 		p.writeBytes(b, 0, b.length);
 	}
 
 	@Override
-	public void write(final byte[] b, final int off, final int len) throws IOException
-	{
+	public void write(final byte[] b, final int off, final int len) throws IOException {
 		if (b == null)
 			throw new NullPointerException();
 		if (off < 0 || off > b.length || len < 0 || off + len > b.length || off + len < 0)
