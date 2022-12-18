@@ -39,14 +39,12 @@ package io.calimero.serial.provider.jni;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.time.Duration;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.locks.ReentrantLock;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import tuwien.auto.calimero.KnxRuntimeException;
 import tuwien.auto.calimero.serial.spi.SerialCom;
 
@@ -130,7 +128,7 @@ final class TtySerialCom implements SerialCom {
 	private InputStream is;
 	private OutputStream os;
 
-	private final Logger logger;
+	private static final Logger logger = System.getLogger(loggerName);
 
 	static final class Timeouts {
 		final int readInterval;
@@ -158,12 +156,12 @@ final class TtySerialCom implements SerialCom {
 	static {
 		boolean b = false;
 		try {
-			LoggerFactory.getLogger(loggerName).trace("check Java library path {}", System.getProperty("java.library.path"));
+			logger.log(Level.TRACE, "check Java library path {0}", System.getProperty("java.library.path"));
 			System.loadLibrary("serialcom");
 			b = true;
 		}
 		catch (SecurityException | UnsatisfiedLinkError e) {
-			LoggerFactory.getLogger(loggerName).debug(e.getMessage());
+			logger.log(Level.DEBUG, e.getMessage());
 		}
 		loaded = b;
 	}
@@ -171,14 +169,13 @@ final class TtySerialCom implements SerialCom {
 	public TtySerialCom() {
 		if (!loaded)
 			throw new KnxRuntimeException("no serialcom library found");
-		logger = LoggerFactory.getLogger(loggerName);
 	}
 
 	TtySerialCom(final String portId, final int baudrate, final int databits, final StopBits stopbits,
 			final Parity parity, final FlowControl mode, final Duration idleTimeout) throws IOException {
 		if (!loaded)
 			throw new KnxRuntimeException("no serialcom library found");
-		logger = LoggerFactory.getLogger(loggerName + ":" + portId);
+		logger.log(Level.DEBUG, "opening serial port {0}", portId);
 		open(portId);
 		setSerialPortParams(baudrate, databits, stopbits, parity);
 		setFlowControlMode(mode);
@@ -258,7 +255,7 @@ final class TtySerialCom implements SerialCom {
 				close0();
 		}
 		catch (final IOException e) {
-			logger.error("closing serial port", e);
+			logger.log(Level.ERROR, "closing serial port", e);
 		}
 		fd = INVALID_HANDLE;
 	}
