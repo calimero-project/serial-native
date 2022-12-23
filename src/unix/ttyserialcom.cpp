@@ -1,6 +1,6 @@
 /*
     Calimero 2 - A library for KNX network access
-    Copyright (c) 2011, 2021 B. Malinowsky
+    Copyright (c) 2011, 2022 B. Malinowsky
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -283,6 +283,7 @@ static pid_t readPid(const char* filename)
 // all files are located in /var/lock/
 static bool ensureLock(const char* port)
 {
+    trace("ensure lock in /var/lock/");
     const size_t size = 50;
     char name[size];
     const char* start = port;
@@ -504,11 +505,11 @@ static bool hasDevSerialLink(JNIEnv* env, jstring portId)
 #endif
 
 /*
- * Class:     tuwien_auto_calimero_serial_SerialComAdapter
+ * Class:     io_calimero_serial_provider_jni_TtySerialCom
  * Method:    portExists
  * Signature: (Ljava/lang/String;)Z
  */
-JNIEXPORT jboolean JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_portExists(
+JNIEXPORT jboolean JNICALL Java_io_calimero_serial_provider_jni_TtySerialCom_portExists(
         JNIEnv* env, jclass /*c*/, jstring portID)
 {
     int error;
@@ -536,11 +537,11 @@ JNIEXPORT jboolean JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_por
 }
 
 /*
- * Class:     tuwien_auto_calimero_serial_SerialComAdapter
+ * Class:     io_calimero_serial_provider_jni_TtySerialCom
  * Method:    open
  * Signature: (Ljava/lang/String;)V
  */
-JNIEXPORT void JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_open(JNIEnv* env,
+JNIEXPORT void JNICALL Java_io_calimero_serial_provider_jni_TtySerialCom_open(JNIEnv* env,
         jobject obj, jstring portID)
 {
     int error;
@@ -583,33 +584,33 @@ JNIEXPORT void JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_open(JN
 }
 
 /*
- * Class:     tuwien_auto_calimero_serial_SerialComAdapter
+ * Class:     io_calimero_serial_provider_jni_TtySerialCom
  * Method:    close0
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_close0(JNIEnv* env,
+JNIEXPORT void JNICALL Java_io_calimero_serial_provider_jni_TtySerialCom_close0(JNIEnv* env,
         jobject obj)
 {
     if (!closePort(env, obj))
         throwException(env, errno);
 }
 
-static const uint32_t BAUDRATE = tuwien_auto_calimero_serial_SerialComAdapter_BAUDRATE;
-static const uint8_t PARITY = tuwien_auto_calimero_serial_SerialComAdapter_PARITY;
-static const uint8_t DATABITS = tuwien_auto_calimero_serial_SerialComAdapter_DATABITS;
-static const uint8_t STOPBITS = tuwien_auto_calimero_serial_SerialComAdapter_STOPBITS;
-static const uint8_t FLOWCTRL = tuwien_auto_calimero_serial_SerialComAdapter_FLOWCTRL;
+static const uint32_t BAUDRATE = io_calimero_serial_provider_jni_TtySerialCom_BAUDRATE;
+static const uint8_t PARITY = io_calimero_serial_provider_jni_TtySerialCom_PARITY;
+static const uint8_t DATABITS = io_calimero_serial_provider_jni_TtySerialCom_DATABITS;
+static const uint8_t STOPBITS = io_calimero_serial_provider_jni_TtySerialCom_STOPBITS;
+static const uint8_t FLOWCTRL = io_calimero_serial_provider_jni_TtySerialCom_FLOWCTRL;
 
 #undef STOPBITS_10
 #undef STOPBITS_15
 #undef STOPBITS_20
 
-static const uint8_t STOPBITS_10 = tuwien_auto_calimero_serial_SerialComAdapter_ONE_STOPBIT;
+static const uint8_t STOPBITS_10 = io_calimero_serial_provider_jni_TtySerialCom_ONE_STOPBIT;
 static const uint8_t STOPBITS_15 = 3;
-static const uint8_t STOPBITS_20 = tuwien_auto_calimero_serial_SerialComAdapter_TWO_STOPBITS;
+static const uint8_t STOPBITS_20 = io_calimero_serial_provider_jni_TtySerialCom_TWO_STOPBITS;
 
-static const uint8_t FLOWCTRL_NONE = tuwien_auto_calimero_serial_SerialComAdapter_FLOWCTRL_NONE;
-static const uint8_t FLOWCTRL_CTSRTS = tuwien_auto_calimero_serial_SerialComAdapter_FLOWCTRL_CTSRTS;
+static const uint8_t FLOWCTRL_NONE = io_calimero_serial_provider_jni_TtySerialCom_FLOWCTRL_NONE;
+static const uint8_t FLOWCTRL_CTSRTS = io_calimero_serial_provider_jni_TtySerialCom_FLOWCTRL_CTSRTS;
 
 // CSTOPB set corresponds to 2 stop bits, default is 1 stop bit
 static void setTermiosStopBits(tcflag_t* cflags, uint8_t stopbits)
@@ -640,11 +641,11 @@ static uint8_t getGenericStopBits(tcflag_t cflags)
     }
 }
 
-static const int PARITY_NONE = tuwien_auto_calimero_serial_SerialComAdapter_PARITY_NONE;
-static const int PARITY_ODD = tuwien_auto_calimero_serial_SerialComAdapter_PARITY_ODD;
-static const int PARITY_EVEN = tuwien_auto_calimero_serial_SerialComAdapter_PARITY_EVEN;
-static const int PARITY_MARK = tuwien_auto_calimero_serial_SerialComAdapter_PARITY_MARK;
-static const int PARITY_SPACE = -1; //tuwien_auto_calimero_serial_SerialComAdapter_PARITY_SPACE;
+static const int PARITY_NONE = io_calimero_serial_provider_jni_TtySerialCom_PARITY_NONE;
+static const int PARITY_ODD = io_calimero_serial_provider_jni_TtySerialCom_PARITY_ODD;
+static const int PARITY_EVEN = io_calimero_serial_provider_jni_TtySerialCom_PARITY_EVEN;
+static const int PARITY_MARK = io_calimero_serial_provider_jni_TtySerialCom_PARITY_MARK;
+static const int PARITY_SPACE = -1; //io_calimero_serial_provider_jni_TtySerialCom_PARITY_SPACE;
 
 
 static void setTermiosParity(tcflag_t* cflags, int32_t parity)
@@ -988,11 +989,11 @@ static uint32_t getGenericFlowControl(tcflag_t cflags)
 }
 
 /*
- * Class:     tuwien_auto_calimero_serial_SerialComAdapter
+ * Class:     io_calimero_serial_provider_jni_TtySerialCom
  * Method:    setControl
  * Signature: (II)I
  */
-JNIEXPORT jint JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_setControl(JNIEnv* env,
+JNIEXPORT jint JNICALL Java_io_calimero_serial_provider_jni_TtySerialCom_setControl(JNIEnv* env,
         jobject obj, jint control, jint newValue)
 {
     fd_t fd = getFD(env, obj);
@@ -1052,11 +1053,11 @@ JNIEXPORT jint JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_setCont
 }
 
 /*
- * Class:     tuwien_auto_calimero_serial_SerialComAdapter
+ * Class:     io_calimero_serial_provider_jni_TtySerialCom
  * Method:    getControl
  * Signature: (I)I
  */
-JNIEXPORT jint JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_getControl(JNIEnv* env,
+JNIEXPORT jint JNICALL Java_io_calimero_serial_provider_jni_TtySerialCom_getControl(JNIEnv* env,
         jobject obj, jint control)
 {
     fd_t fd = getFD(env, obj);
@@ -1102,11 +1103,11 @@ static ssize_t write(JNIEnv* env, fd_t fd, const uint8_t* pBuf, size_t off, size
 }
 
 /*
- * Class:     tuwien_auto_calimero_serial_SerialComAdapter
+ * Class:     io_calimero_serial_provider_jni_TtySerialCom
  * Method:    writeBytes
  * Signature: ([BII)I
  */
-JNIEXPORT jint JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_writeBytes(JNIEnv* env,
+JNIEXPORT jint JNICALL Java_io_calimero_serial_provider_jni_TtySerialCom_writeBytes(JNIEnv* env,
         jobject obj, jbyteArray buf, jint off, jint len)
 {
     jboolean iscopy;
@@ -1115,11 +1116,11 @@ JNIEXPORT jint JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_writeBy
 }
 
 /*
- * Class:     tuwien_auto_calimero_serial_SerialComAdapter
+ * Class:     io_calimero_serial_provider_jni_TtySerialCom
  * Method:    write
  * Signature: (I)I
  */
-JNIEXPORT jint JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_write(JNIEnv* env,
+JNIEXPORT jint JNICALL Java_io_calimero_serial_provider_jni_TtySerialCom_write(JNIEnv* env,
         jobject obj, jint byte)
 {
     uint8_t out = static_cast<uint8_t>(byte);
@@ -1228,11 +1229,11 @@ static ssize_t read(fd_t fd, uint8_t* buffer, uint32_t /*off*/, uint32_t len)
 }
 
 /*
- * Class:     tuwien_auto_calimero_serial_SerialComAdapter
+ * Class:     io_calimero_serial_provider_jni_TtySerialCom
  * Method:    readBytes
  * Signature: ([BII)I
  */
-JNIEXPORT jint JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_readBytes(JNIEnv* env,
+JNIEXPORT jint JNICALL Java_io_calimero_serial_provider_jni_TtySerialCom_readBytes(JNIEnv* env,
         jobject obj, jbyteArray b, jint off, jint len)
 {
     jboolean iscopy;
@@ -1245,11 +1246,11 @@ JNIEXPORT jint JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_readByt
 }
 
 /*
- * Class:     tuwien_auto_calimero_serial_SerialComAdapter
+ * Class:     io_calimero_serial_provider_jni_TtySerialCom
  * Method:    read
  * Signature: ()I
  */
-JNIEXPORT jint JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_read(JNIEnv* env,
+JNIEXPORT jint JNICALL Java_io_calimero_serial_provider_jni_TtySerialCom_read(JNIEnv* env,
         jobject obj)
 {
     uint8_t in = 0;
@@ -1261,25 +1262,25 @@ JNIEXPORT jint JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_read(JN
     return in;
 }
 
-static const uint32_t EVENT_RXCHAR = tuwien_auto_calimero_serial_SerialComAdapter_EVENT_RXCHAR;
-static const uint32_t EVENT_RXFLAG = tuwien_auto_calimero_serial_SerialComAdapter_EVENT_RXFLAG;
-static const uint32_t EVENT_TXEMPTY = tuwien_auto_calimero_serial_SerialComAdapter_EVENT_TXEMPTY;
-static const uint32_t EVENT_CTS = tuwien_auto_calimero_serial_SerialComAdapter_EVENT_CTS;
-static const uint32_t EVENT_DSR = tuwien_auto_calimero_serial_SerialComAdapter_EVENT_DSR;
-static const uint32_t EVENT_RLSD = tuwien_auto_calimero_serial_SerialComAdapter_EVENT_RLSD;
-static const uint32_t EVENT_BREAK = tuwien_auto_calimero_serial_SerialComAdapter_EVENT_BREAK;
-static const uint32_t EVENT_ERR = tuwien_auto_calimero_serial_SerialComAdapter_EVENT_ERR;
-static const uint32_t EVENT_RING = tuwien_auto_calimero_serial_SerialComAdapter_EVENT_RING;
+static const uint32_t EVENT_RXCHAR = io_calimero_serial_provider_jni_TtySerialCom_EVENT_RXCHAR;
+static const uint32_t EVENT_RXFLAG = io_calimero_serial_provider_jni_TtySerialCom_EVENT_RXFLAG;
+static const uint32_t EVENT_TXEMPTY = io_calimero_serial_provider_jni_TtySerialCom_EVENT_TXEMPTY;
+static const uint32_t EVENT_CTS = io_calimero_serial_provider_jni_TtySerialCom_EVENT_CTS;
+static const uint32_t EVENT_DSR = io_calimero_serial_provider_jni_TtySerialCom_EVENT_DSR;
+static const uint32_t EVENT_RLSD = io_calimero_serial_provider_jni_TtySerialCom_EVENT_RLSD;
+static const uint32_t EVENT_BREAK = io_calimero_serial_provider_jni_TtySerialCom_EVENT_BREAK;
+static const uint32_t EVENT_ERR = io_calimero_serial_provider_jni_TtySerialCom_EVENT_ERR;
+static const uint32_t EVENT_RING = io_calimero_serial_provider_jni_TtySerialCom_EVENT_RING;
 
 // XXX
 static int currentEventMask = 0;
 
 /*
- * Class:     tuwien_auto_calimero_serial_SerialComAdapter
+ * Class:     io_calimero_serial_provider_jni_TtySerialCom
  * Method:    setEvents
  * Signature: (IZ)V
  */
-JNIEXPORT void JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_setEvents(JNIEnv* /*env*/,
+JNIEXPORT void JNICALL Java_io_calimero_serial_provider_jni_TtySerialCom_setEvents(JNIEnv* /*env*/,
         jobject /*obj*/, jint eventMask, jboolean enable)
 {
     //fd_t h = getFD(env, obj);
@@ -1385,11 +1386,11 @@ static struct serial_icounter_struct queryInterruptCounters(JNIEnv* /*env*/, fd_
 #endif // TIOCGICOUNT
 
 /*
- * Class:     tuwien_auto_calimero_serial_SerialComAdapter
+ * Class:     io_calimero_serial_provider_jni_TtySerialCom
  * Method:    waitEvent
  * Signature: ()I
  */
-JNIEXPORT jint JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_waitEvent(JNIEnv* env,
+JNIEXPORT jint JNICALL Java_io_calimero_serial_provider_jni_TtySerialCom_waitEvent(JNIEnv* env,
         jobject obj)
 {
     // maybe use TIOCGICOUNT
@@ -1410,17 +1411,17 @@ JNIEXPORT jint JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_waitEve
     return getGenericLineEvents(queryInterruptCounters(env, fd));
 }
 
-static const uint8_t LINE_STATUS = tuwien_auto_calimero_serial_SerialComAdapter_LINE_STATUS;
-static const uint8_t ERROR_STATUS = tuwien_auto_calimero_serial_SerialComAdapter_ERROR_STATUS;
+static const uint8_t LINE_STATUS = io_calimero_serial_provider_jni_TtySerialCom_LINE_STATUS;
+static const uint8_t ERROR_STATUS = io_calimero_serial_provider_jni_TtySerialCom_ERROR_STATUS;
 static const uint8_t INPUT_AVAIL =
-        tuwien_auto_calimero_serial_SerialComAdapter_AVAILABLE_INPUT_STATUS;
+        io_calimero_serial_provider_jni_TtySerialCom_AVAILABLE_INPUT_STATUS;
 
 /*
- * Class:     tuwien_auto_calimero_serial_SerialComAdapter
+ * Class:     io_calimero_serial_provider_jni_TtySerialCom
  * Method:    getStatus
  * Signature: (I)I
  */
-JNIEXPORT jint JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_getStatus(JNIEnv* env,
+JNIEXPORT jint JNICALL Java_io_calimero_serial_provider_jni_TtySerialCom_getStatus(JNIEnv* env,
         jobject obj, jint type)
 {
     trace("get status");
@@ -1477,11 +1478,11 @@ static int getInt(JNIEnv* env, jobject obj, const char* name)
 }
 
 /*
- * Class:     tuwien_auto_calimero_serial_SerialComAdapter
+ * Class:     io_calimero_serial_provider_jni_TtySerialCom
  * Method:    setTimeouts
- * Signature: (Ltuwien/auto/calimero/serial/SerialComAdapter/Timeouts;)V
+ * Signature: (Lio/calimero/serial/provider/jni/TtySerialCom/Timeouts;)V
  */
-JNIEXPORT void JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_setTimeouts(JNIEnv* env,
+JNIEXPORT void JNICALL Java_io_calimero_serial_provider_jni_TtySerialCom_setTimeouts(JNIEnv* env,
         jobject obj, jobject timeouts)
 {
     uint32_t readIntervalTimeout = getInt(env, timeouts, "readInterval");
@@ -1512,19 +1513,19 @@ JNIEXPORT void JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_setTime
             // setting: return immediately from read, even if no characters read
             vmin = 0;
             vtime = 0;
-            trace("setTimeouts: return immediately from read, even if no characters read");
+            trace("set timeouts: return immediately from read, even if no characters read");
         }
         else if (readTotalTimeoutMultiplier == 0 && readTotalTimeoutConstant == 0) {
             // setting: no total timeouts used for read operations, block for next char
             vmin = 1;
             vtime = 0;
-            trace("setTimeouts: no total timeouts used for read operations, block for next char");
+            trace("set timeouts: no total timeouts used for read operations, block for next char");
         }
         else if (readIntervalTimeout > 0) {
             // setting: enforce an inter-character timeout after reading the first char
             vmin = 255;
             vtime = static_cast<cc_t>(readIntervalTimeout / 100);
-            trace("setTimeouts: enforce an inter-character timeout after reading the first char");
+            trace("set timeouts: enforce an inter-character timeout after reading the first char");
         }
         else if (readTotalTimeoutConstant > 0 && readTotalTimeoutMultiplier == 0
                 && readIntervalTimeout == 0) {
@@ -1534,7 +1535,7 @@ JNIEXPORT void JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_setTime
             if (vtime == 0)
                 vtime = 1;
             receiveTimeout = readTotalTimeoutConstant;
-            trace("setTimeouts: set a maximum timeout to wait for next character");
+            trace("set timeouts: set a maximum timeout to wait for next character");
         }
         else {
             // XXX hmm
@@ -1552,11 +1553,11 @@ JNIEXPORT void JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_setTime
 }
 
 /*
- * Class:     tuwien_auto_calimero_serial_SerialComAdapter
+ * Class:     io_calimero_serial_provider_jni_TtySerialCom
  * Method:    getTimeouts
- * Signature: ()Ltuwien/auto/calimero/serial/SerialComAdapter/Timeouts;
+ * Signature: ()Lio/calimero/serial/provider/jni/TtySerialCom/Timeouts;
  */
-JNIEXPORT jobject JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_getTimeouts(
+JNIEXPORT jobject JNICALL Java_io_calimero_serial_provider_jni_TtySerialCom_getTimeouts(
         JNIEnv* env, jobject obj)
 {
     trace("get timeouts");
@@ -1568,7 +1569,7 @@ JNIEXPORT jobject JNICALL Java_tuwien_auto_calimero_serial_SerialComAdapter_getT
         trace_error("get timeouts: tcgetattr");
     }
     else {
-        jclass cls = env->FindClass("Ltuwien/auto/calimero/serial/SerialComAdapter$Timeouts;");
+        jclass cls = env->FindClass("Lio/calimero/serial/provider/jni/TtySerialCom$Timeouts;");
         jmethodID ctor = env->GetMethodID(cls, "<init>", "(IIIII)V");
         cc_t vmin = options.c_cc[VMIN];
         cc_t vtime = options.c_cc[VTIME];

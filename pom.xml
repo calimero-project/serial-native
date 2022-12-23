@@ -2,14 +2,13 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>com.github.calimero</groupId>
+		<groupId>io.calimero</groupId>
 		<artifactId>calimero-parent</artifactId>
 		<version>2.6-SNAPSHOT</version>
 	</parent>
 	<artifactId>serial-native</artifactId>
-	<packaging>pom</packaging>
 	<name>Serial (native)</name>
-	<description>Libraries for serial port access using JNI</description>
+	<description>Calimero serialcom provider using JNI</description>
 	<scm>
 		<url>https://github.com/calimero-project/serial-native.git</url>
 	</scm>
@@ -20,6 +19,10 @@
 			<name>GNU Lesser General Public License, version 2.1</name>
 			<url>LICENSE</url>
 		</license>
+		<license>
+			<name>GNU General Public License, version 2, with the Classpath Exception</name>
+			<url>LICENSE.java</url>
+		</license>	
 	</licenses>
 	<developers>
 		<developer>
@@ -35,16 +38,9 @@
 	</properties>
 
 	<build>
+		<sourceDirectory>${basedir}/src/main/java</sourceDirectory>
+		<testSourceDirectory>${basedir}/src/test/java</testSourceDirectory>
 		<plugins>
-			<plugin>
-				<artifactId>maven-jar-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>default-jar</id>
-						<phase>none</phase>
-					</execution>
-				</executions>
-			</plugin>
 			<plugin>
 				<groupId>com.github.maven-nar</groupId>
 				<artifactId>nar-maven-plugin</artifactId>
@@ -109,18 +105,15 @@
 					</execution>
 				</executions>
 			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-install-plugin</artifactId>
-				<version>3.0.1</version>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-deploy-plugin</artifactId>
-				<version>3.0.0</version>
-			</plugin>
 		</plugins>
 	</build>
+	<dependencies>
+		<dependency>
+			<groupId>com.github.calimero</groupId>
+			<artifactId>calimero-core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	</dependencies>
 	<repositories>
 		<repository>
 			<id>snapshots</id>
