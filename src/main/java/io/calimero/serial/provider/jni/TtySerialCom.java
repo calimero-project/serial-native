@@ -172,14 +172,15 @@ final class TtySerialCom implements SerialCom {
 	}
 
 	TtySerialCom(final String portId, final int baudrate, final int databits, final StopBits stopbits,
-			final Parity parity, final FlowControl mode, final Duration idleTimeout) throws IOException {
+			final Parity parity, final FlowControl mode, final Duration readIntervalTimeout,
+			final Duration receiveTimeout) throws IOException {
 		if (!loaded)
 			throw new KnxRuntimeException("no serialcom library found");
 		logger.log(Level.DEBUG, "opening serial port {0}", portId);
 		open(portId);
 		setSerialPortParams(baudrate, databits, stopbits, parity);
 		setFlowControlMode(mode);
-		setTimeouts(new Timeouts((int) idleTimeout.toMillis(), 0, 5, 0, 0));
+		setTimeouts(new Timeouts((int) readIntervalTimeout.toMillis(), 0, (int) receiveTimeout.toMillis(), 0, 0));
 	}
 
 	static native boolean portExists(String portId);

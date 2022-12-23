@@ -37,24 +37,19 @@
 package io.calimero.serial.provider.jni;
 
 import java.io.IOException;
-import java.time.Duration;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.IntStream;
 
 import tuwien.auto.calimero.KNXException;
 import tuwien.auto.calimero.serial.spi.SerialCom;
-import tuwien.auto.calimero.serial.spi.SerialCom.FlowControl;
-import tuwien.auto.calimero.serial.spi.SerialCom.Parity;
-import tuwien.auto.calimero.serial.spi.SerialCom.StopBits;
 import tuwien.auto.calimero.serial.spi.SerialConnectionProvider;
 
 public final class TtySerialComProvider implements SerialConnectionProvider {
 	@Override
-	public SerialCom open(final String portId, final int baudrate, final int databits, final StopBits stopbits,
-			final Parity parity, final FlowControl flowControl, final Duration idleTimeout)
-					throws KNXException, IOException {
-		return new TtySerialCom(portId, baudrate, databits, stopbits, parity, flowControl, idleTimeout);
+	public SerialCom open(final Settings settings) throws KNXException, IOException {
+		return new TtySerialCom(settings.portId(), settings.baudrate(), settings.databits(), settings.stopbits(),
+				settings.parity(), settings.flowControl(), settings.readIntervalTimeout(), settings.receiveTimeout());
 	}
 
 	@Override
