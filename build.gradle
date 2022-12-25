@@ -142,8 +142,8 @@ publishing {
             artifactId = rootProject.name
             from components.java
             pom {
-                name = 'Calimero serialcom provider'
-                description = 'Provider to use serialcom for serial communication'
+                name = 'Calimero serial-native service provider'
+                description = 'Serial comummication provider using JNI'
                 url = 'https://github.com/calimero-project/calimero-serialcom'
                 inceptionYear = '2006'
                 licenses {

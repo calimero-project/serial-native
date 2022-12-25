@@ -7,8 +7,8 @@
 		<version>2.6-SNAPSHOT</version>
 	</parent>
 	<artifactId>serial-native</artifactId>
-	<name>Serial (native)</name>
-	<description>Calimero serialcom provider using JNI</description>
+	<name>Calimero serial-native service provider</name>
+	<description>Serial comummication provider using JNI</description>
 	<scm>
 		<url>https://github.com/calimero-project/serial-native.git</url>
 	</scm>
@@ -114,17 +114,4 @@
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
-	<repositories>
-		<repository>
-			<id>snapshots</id>
-			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-				<updatePolicy>daily</updatePolicy>
-			</snapshots>
-		</repository>
-	</repositories>
 </project>
