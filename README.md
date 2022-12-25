@@ -1,4 +1,4 @@
-JNI C libraries for serial communication
+Calimero serial communication provider [![CI with Gradle](https://github.com/calimero-project/serial-native/actions/workflows/gradle.yml/badge.svg)](https://github.com/calimero-project/serial-native/actions/workflows/gradle.yml)
 =====
 
 Linux, macOS, and Windows libraries for serial port access using JNI (written in C).

@@ -1,0 +1,38 @@
+name: CI with Gradle
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        java: [11, 17, 19]
+    name: Java ${{ matrix.java }} sample
+
+    steps:
+    - name: Checkout calimero-core
+      uses: actions/checkout@v3
+      with:
+        repository: calimero-project/calimero-core
+        path: calimero-core
+    - name: Checkout serial-native
+      uses: actions/checkout@v3
+      with:
+        repository: calimero-project/serial-native
+        path: serial-native
+    - name: setup
+      uses: actions/setup-java@v3
+      with:
+        distribution: temurin
+        java-version: ${{ matrix.java }}
+    - name: Execute Gradle build
+      run: |
+        cd serial-native
+        ./gradlew build
