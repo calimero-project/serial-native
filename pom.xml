@@ -7,9 +7,8 @@
 		<version>2.6-SNAPSHOT</version>
 	</parent>
 	<artifactId>serial-native</artifactId>
-	<packaging>pom</packaging>
-	<name>Serial (native)</name>
-	<description>Libraries for serial port access using JNI</description>
+	<name>Calimero serial-native service provider</name>
+	<description>Serial comummication provider using FFM</description>
 	<scm>
 		<url>https://github.com/calimero-project/serial-native.git</url>
 	</scm>
