@@ -36,10 +36,15 @@
 
 package io.calimero.serial.provider.ffm;
 
+import static java.lang.System.Logger.Level.ERROR;
+import static java.lang.System.Logger.Level.TRACE;
+import static java.lang.System.Logger.Level.WARNING;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringWriter;
+import java.lang.System.Logger;
 import java.lang.foreign.Addressable;
 import java.lang.foreign.GroupLayout;
 import java.lang.foreign.MemoryAddress;
@@ -58,8 +63,6 @@ import java.time.Duration;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.unix.Linux;
 import org.unix.fd_set;
 import org.unix.stat;
@@ -153,7 +156,7 @@ final class TtySerialCom implements SerialCom {
 
 
 	TtySerialCom() {
-		logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+		logger = System.getLogger(MethodHandles.lookup().lookupClass().getName());
 		is = new PortInputStream(this);
 		os = new PortOutputStream(this);
 	}
@@ -161,7 +164,7 @@ final class TtySerialCom implements SerialCom {
 	TtySerialCom(final String portId, final int baudrate, final int databits, final StopBits stopbits,
 			final Parity parity, final FlowControl flowControl, final Duration readIntervalTimeout,
 			final Duration receiveTimeout) throws IOException {
-		logger = LoggerFactory.getLogger("io.calimero.serial.provider.ffm:" + portId);
+		logger = System.getLogger("io.calimero.serial.provider.ffm:" + portId);
 		open(portId);
 		setBaudrate(baudrate);
 		setDatabits(databits);
@@ -197,10 +200,10 @@ final class TtySerialCom implements SerialCom {
 	public final void close() {
 		try {
 			if (!closePort())
-				logger.error("closing serial port: {}", errnoMsg());
+				logger.log(ERROR, "closing serial port: {0}", errnoMsg());
 		}
 		catch (final IOException e) {
-			logger.error("closing serial port", e);
+			logger.log(ERROR, "closing serial port", e);
 		}
 	}
 
@@ -1546,7 +1549,7 @@ final class TtySerialCom implements SerialCom {
 
 	private void perror(final String msg) {
 		final String err = errnoMsg();
-		logger.warn("{}: {}", msg, err);
+		logger.log(WARNING, "{0}: {1}", msg, err);
 	}
 
 	private static final MethodHandle errno;
@@ -1595,12 +1598,12 @@ final class TtySerialCom implements SerialCom {
 
 	private void trace_error(final String msg, final String... opt) {
 		final var join = String.join(" ", opt);
-		logger.warn("{} {}", msg, join);
+		logger.log(WARNING, "{0} {1}", msg, join);
 	}
 
 	private void trace(final String msg, final String... opt) {
 		final var join = String.join(" ", opt);
-		logger.trace("{} {}", msg, join);
+		logger.log(TRACE, "{0} {1}", msg, join);
 	}
 
 	private static String dump(final MemorySegment seg, final MemoryLayout layout) {
