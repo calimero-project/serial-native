@@ -40,11 +40,20 @@ compileTestJava.options*.compilerArgs = [
 tasks.withType(Jar) {
 	from("${projectDir}") {
         include 'LICENSE'
+        include 'LICENSE.java'
         into "META-INF"
     }
     if (name.equals('sourcesJar')) {
     	from("${projectDir}") {
-		    include 'README.md', 'build.gradle', 'settings.gradle', 'gradle*/**'
+		    include 'README.md'
+        }
+        from("${projectDir}/src") {
+		    include 'include/**', 'unix/**', 'win/**'
+        }
+    }
+    if (name.equals('jar')) {
+    	from("${projectDir}/bin") {
+		    include 'linux*/**', 'win*/**'
         }
     }
 }
@@ -144,11 +153,15 @@ publishing {
             pom {
                 name = 'Calimero serial-native service provider'
                 description = 'Serial comummication provider using JNI'
-                url = 'https://github.com/calimero-project/calimero-serialcom'
+                url = 'https://github.com/calimero-project/serial-native'
                 inceptionYear = '2006'
                 licenses {
                     license {
                         name = "GNU General Public License, version 2, with the Classpath Exception"
+                        url = 'LICENSE.java'
+                    }
+                    license {
+                        name = "GNU Lesser General Public License, version 2.1"
                         url = 'LICENSE'
                     }
                 }
@@ -159,8 +172,8 @@ publishing {
                     }
                 }
                 scm {
-                    connection = 'scm:git:git://github.com:calimero-project/calimero-serialcom.git'
-                    url = 'https://github.com/calimero-project/calimero-serialcom.git'
+                    connection = 'scm:git:git://github.com/calimero-project/serial-native.git'
+                    url = 'https://github.com/calimero-project/serial-native.git'
                 }
             }
         }
@@ -168,8 +181,8 @@ publishing {
     repositories {
         maven {
             name 'maven'
-            def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-            def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
+            def releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2"
+            def snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots"
             url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
             credentials(PasswordCredentials)
         }

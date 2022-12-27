@@ -3,8 +3,8 @@ Calimero serial communication provider [![CI with Gradle](https://github.com/cal
 
 Linux, macOS, and Windows libraries for serial port access using JNI (written in C).
 
-Compile the sources for your target platform, or use one of the precompiled libraries in the 
-`zip` or `tar.gz` archives available for Windows and Linux. Compiling the sources requires an installed C/C++ toolchain.
+Compile the C sources for your target platform, or use one of the precompiled libraries in the 
+`jar` archive available for Windows and Linux. Compiling the C sources requires an installed C/C++ toolchain.
 
 ### Build with Gradle 
 For Linux, macOS, Windows; ARM(v7) is not working. The compiled library can be found in the _build/lib_ directory.
@@ -20,7 +20,7 @@ The `nar` maven plugin supports compiling native code on a number of different a
 
 ### Copy library to Java library path
 
-Copy the compiled library to a folder of the Java library path, to be found by the JRE.
+Copy the (pre-)compiled library to a folder of the Java library path, to be found by the JRE.
 In Java, this prints the Java library path:
 
     System.out.println("Java library path = " + System.getProperty("java.library.path"));
