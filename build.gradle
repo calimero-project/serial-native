@@ -74,12 +74,33 @@ tasks.withType(JavaExec) { jvmArgs += "--enable-preview" }
 //project.gradle.startParameter.excludedTaskNames.add("jextract")
 
 jextract {
-	def path = "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include"
+	def os = System.getProperty("os.name").toLowerCase(Locale.ENGLISH)
 
-	header("${project.projectDir}/src/include/headers.h") {
+	def headersDir = "unix"
+	def path = ""
+	def tgtPkg = "org.unix"
+	def clsName = "Linux"
+
+	if (os.contains("windows")) {
+		headersDir = "win"
+		path = "C:/mingw64/x86_64-w64-mingw32/include"
+		tgtPkg = 'org.win'
+		clsName = 'Windows'
+	}
+	else if (os.contains("linux")) { 
+		path = "/usr/include"
+	}
+	else if (os.contains("mac")) {
+		path = "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include"
+	}
+	else {
+		throw new RuntimeException("Unsupported platform '" + os + "'")
+	}
+
+	header("${project.projectDir}/src/include/$headersDir/headers.h") {
+		targetPackage = tgtPkg
+		className = clsName
 		includes = [ "$path" ]
-		targetPackage = 'org.unix'
-		className = 'Linux'
 	}
 }
 
