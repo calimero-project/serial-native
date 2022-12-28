@@ -45,8 +45,9 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.locks.ReentrantLock;
-import tuwien.auto.calimero.KnxRuntimeException;
-import tuwien.auto.calimero.serial.spi.SerialCom;
+
+import io.calimero.KnxRuntimeException;
+import io.calimero.serial.spi.SerialCom;
 
 /**
  * Provider for serial communication implemented using JNI. The implementation of this API contains platform dependent

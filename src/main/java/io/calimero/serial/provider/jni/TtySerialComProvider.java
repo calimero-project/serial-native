@@ -41,9 +41,9 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.IntStream;
 
-import tuwien.auto.calimero.KNXException;
-import tuwien.auto.calimero.serial.spi.SerialCom;
-import tuwien.auto.calimero.serial.spi.SerialConnectionProvider;
+import io.calimero.KNXException;
+import io.calimero.serial.spi.SerialCom;
+import io.calimero.serial.spi.SerialConnectionProvider;
 
 public final class TtySerialComProvider implements SerialConnectionProvider {
 	@Override

@@ -109,7 +109,7 @@
 	</build>
 	<dependencies>
 		<dependency>
-			<groupId>com.github.calimero</groupId>
+			<groupId>io.calimero</groupId>
 			<artifactId>calimero-core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
