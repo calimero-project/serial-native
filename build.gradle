@@ -29,7 +29,7 @@ javadoc.options.encoding = 'UTF-8'
 
 compileJava.options*.compilerArgs = [
 	'-Xlint:all,-serial',
-	"--limit-modules", "java.base"
+	"--limit-modules", "java.base,io.calimero.core"
 ]
 
 compileTestJava.options*.compilerArgs = [
