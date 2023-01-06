@@ -1,6 +1,6 @@
 /*
     Calimero 2 - A library for KNX network access
-    Copyright (c) 2006, 2022 B. Malinowsky
+    Copyright (c) 2006, 2023 B. Malinowsky
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -195,15 +195,15 @@ final class TtySerialCom implements SerialCom {
 	// return of -1 indicates timeout
 	native int read() throws IOException;
 
-	public void setSerialPortParams(final int baudrate, final int databits, final StopBits stopbits,
+	private void setSerialPortParams(final int baudrate, final int databits, final StopBits stopbits,
 			final Parity parity) throws IOException {
 		setControl(BAUDRATE, baudrate);
-		setControl(DATABITS, 8);
+		setControl(DATABITS, databits);
 		setControl(STOPBITS, stopbits.value());
 		setControl(PARITY, parity.value());
 	}
 
-	public void setFlowControlMode(final FlowControl mode) throws IOException {
+	private void setFlowControlMode(final FlowControl mode) throws IOException {
 		setControl(FLOWCTRL, mode.value());
 	}
 
@@ -279,7 +279,7 @@ final class TtySerialCom implements SerialCom {
 
 	private native int waitEvent() throws IOException;
 
-	public native void open(String portId) throws IOException;
+	private native void open(String portId) throws IOException;
 
 	private native void close0() throws IOException;
 }
