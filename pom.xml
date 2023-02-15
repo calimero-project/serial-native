@@ -49,6 +49,7 @@
 				<configuration>
 					<output>serialcom</output>
 					<cpp>
+						<sourceDirectory>src</sourceDirectory>
 						<defines>
 <!--      						<define>DEBUG</define> -->
 						</defines>
