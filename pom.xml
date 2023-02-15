@@ -22,7 +22,7 @@
 		<license>
 			<name>GNU General Public License, version 2, with the Classpath Exception</name>
 			<url>LICENSE.java</url>
-		</license>	
+		</license>
 	</licenses>
 	<developers>
 		<developer>
@@ -33,7 +33,7 @@
 
 	<properties>
 		<compile.debug>false</compile.debug>
-			<java.home>/Library/Java/JavaVirtualMachines/liberica-jdk-17.jdk/Contents/Home</java.home>
+		<java.home>/Library/Java/JavaVirtualMachines/liberica-jdk-19.jdk/Contents/Home</java.home>
 <!--		<java.home>/usr/lib/jvm/jdk-11</java.home>-->
 	</properties>
 
