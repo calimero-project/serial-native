@@ -12,7 +12,7 @@ repositories {
 }
 
 group = 'io.calimero'
-version = '2.6-SNAPSHOT'
+version = '3.0-SNAPSHOT'
 
 sourceCompatibility = 11
 targetCompatibility = 11
@@ -71,10 +71,12 @@ def cppStd = "-std=c++17"
 import org.gradle.internal.os.OperatingSystem
 def os = OperatingSystem.current()
 
-library {
+assemble.doFirst {
     println "Platform " + os
     println "Java home directory = ${javaHome}"
+}
 
+library {
     source {
         if (os.isWindows())
             from fileTree(dir: "src/win", include: "**/*.cpp")
@@ -122,9 +124,13 @@ library {
             compileTask.debuggable = "false"
             compileTask.compilerArgs = [ '/Os', "/Wall" ]
         }
+    }
+}
 
-        def compile = compileTask.isOptimized() ? "release" : "debug"
-        println "Additional compiler args for ${compile} version: " + compileTask.compilerArgs.get()
+tasks.withType(CppCompile) { 
+    doFirst { 
+        def compile = optimized ? "release" : "debug"
+        println "Additional compiler args for ${compile} version: " + compilerArgs.get()
     }
 }
 
