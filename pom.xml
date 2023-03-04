@@ -17,11 +17,11 @@
 	<licenses>
 		<license>
 			<name>GNU Lesser General Public License, version 2.1</name>
-			<url>LICENSE</url>
+			<url>LICENSE.LESSER</url>
 		</license>
 		<license>
 			<name>GNU General Public License, version 2, with the Classpath Exception</name>
-			<url>LICENSE.java</url>
+			<url>LICENSE</url>
 		</license>
 	</licenses>
 	<developers>
