@@ -41,31 +41,30 @@ tasks.named('compileJava') {
     options.javaModuleVersion = provider { project.version }
 }
 
-tasks.withType(Jar) {
-	from("${projectDir}") {
+tasks.withType(Jar).configureEach {
+    from("${projectDir}") {
         include 'LICENSE'
         include 'LICENSE.LESSER'
         into "META-INF"
     }
-    if (name.equals('sourcesJar')) {
-    	from("${projectDir}") {
-		    include 'README.md'
+    if (name == 'sourcesJar') {
+        from("${projectDir}") {
+            include 'README.md'
         }
         from("${projectDir}/src") {
-		    include 'include/**', 'unix/**', 'win/**'
+            include 'include/**', 'unix/**', 'win/**'
         }
     }
-    if (name.equals('jar')) {
-    	from("${projectDir}/bin") {
-		    include 'linux*/**', 'win*/**'
+    if (name == 'jar') {
+        from("${projectDir}/bin") {
+            include 'linux*/**', 'win*/**'
         }
     }
 }
 
-tasks.withType(Javadoc) {
+tasks.withType(Javadoc).configureEach {
     options.addStringOption("Xdoclint:-missing", '-quiet')
 }
-
 
 
 // set this variable manually to Java home directory if default location does not work
@@ -131,8 +130,8 @@ library {
     }
 }
 
-tasks.withType(CppCompile) { 
-    doFirst { 
+tasks.withType(CppCompile).configureEach {
+    doFirst {
         def compile = optimized ? "release" : "debug"
         println "Additional compiler args for ${compile} version: " + compilerArgs.get()
     }

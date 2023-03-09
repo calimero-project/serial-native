@@ -113,8 +113,7 @@ final class TtySerialCom implements SerialCom {
 	// #define CE_TXFULL 0x0100 // TX Queue is full
 	// #define CE_MODE 0x8000 // Requested mode unsupported
 
-	private static final List<String> defaultPortPrefixes = System.getProperty("os.name").toLowerCase(Locale.ENGLISH)
-			.indexOf("windows") > -1 ? List.of("\\\\.\\COM")
+	private static final List<String> defaultPortPrefixes = System.getProperty("os.name").toLowerCase(Locale.ENGLISH).contains("windows") ? List.of("\\\\.\\COM")
 					: List.of("/dev/ttyS", "/dev/ttyACM", "/dev/ttyUSB", "/dev/ttyAMA");
 
 	static List<String> defaultPortPrefixes() { return defaultPortPrefixes; }
@@ -250,7 +249,7 @@ final class TtySerialCom implements SerialCom {
 	}
 
 	@Override
-	public final void close() {
+	public void close() {
 		// any open input/output stream accessing this port becomes unusable
 		try {
 			if (fd != INVALID_HANDLE)
