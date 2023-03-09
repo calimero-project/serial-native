@@ -37,31 +37,30 @@ compileTestJava.options*.compilerArgs = [
 	'-Xlint:-try',
 ]
 
-tasks.withType(Jar) {
-	from("${projectDir}") {
+tasks.withType(Jar).configureEach {
+    from("${projectDir}") {
         include 'LICENSE'
         include 'LICENSE.LESSER'
         into "META-INF"
     }
-    if (name.equals('sourcesJar')) {
-    	from("${projectDir}") {
-		    include 'README.md'
+    if (name == 'sourcesJar') {
+        from("${projectDir}") {
+            include 'README.md'
         }
         from("${projectDir}/src") {
-		    include 'include/**', 'unix/**', 'win/**'
+            include 'include/**', 'unix/**', 'win/**'
         }
     }
-    if (name.equals('jar')) {
-    	from("${projectDir}/bin") {
-		    include 'linux*/**', 'win*/**'
+    if (name == 'jar') {
+        from("${projectDir}/bin") {
+            include 'linux*/**', 'win*/**'
         }
     }
 }
 
-tasks.withType(Javadoc) {
+tasks.withType(Javadoc).configureEach {
     options.addStringOption("Xdoclint:-missing", '-quiet')
 }
-
 
 
 // set this variable manually to Java home directory if default location does not work
@@ -89,42 +88,46 @@ library {
     }
 
     baseName = "serialcom"
-    linkage = [ Linkage.SHARED ]
+    linkage = [Linkage.SHARED]
 
     binaries.configureEach {
         def compileTask = compileTask.get()
         compileTask.positionIndependentCode = "true"
-        
+
         if ((toolChain in Clang || toolChain in Gcc) && !compileTask.isOptimized()) {
             // maybe -O0 works better, -Og still does several optimizations
             // option "-g" is included by default
-            compileTask.compilerArgs = [ cppStd, "-DDEBUG", "-Wall", "-Og" ]
+            compileTask.compilerArgs = [cppStd, "-DDEBUG", "-Wall", "-Og"]
         }
 
         if (toolChain in Clang && compileTask.isOptimized()) {
             compileTask.debuggable = "false"
             // "-Wl,-s" not necessary
-            compileTask.compilerArgs = [ cppStd, "-Wall", "-Oz", "-fno-cxx-exceptions" ]
+            compileTask.compilerArgs = [cppStd, "-Wall", "-Oz", "-fno-cxx-exceptions"]
         }
         if (toolChain in Gcc && compileTask.isOptimized()) {
             compileTask.debuggable = "false"
             // "-Wl,-s" not necessary
-            compileTask.compilerArgs = [ cppStd, "-Wall", "-Os", "-fno-exceptions" ]
+            compileTask.compilerArgs = [cppStd, "-Wall", "-Os", "-fno-exceptions"]
         }
 
         if (toolChain in VisualCpp && !compileTask.isOptimized()) {
             // '/Zi' already included
-            compileTask.compilerArgs = [ '/DDEBUG', "/Wall" ]
+            compileTask.compilerArgs = ['/DDEBUG', "/Wall"]
             def linkTask = linkTask.get()
-            linkTask.linkerArgs = [ '/DEBUG' ]
+            linkTask.linkerArgs = ['/DEBUG']
         }
         if (toolChain in VisualCpp && compileTask.isOptimized()) {
             compileTask.debuggable = "false"
-            compileTask.compilerArgs = [ '/Os', "/Wall" ]
+            compileTask.compilerArgs = ['/Os', "/Wall"]
         }
+    }
+}
 
-        def compile = compileTask.isOptimized() ? "release" : "debug"
-        println "Additional compiler args for ${compile} version: " + compileTask.compilerArgs.get()
+tasks.withType(CppCompile).configureEach {
+    doFirst {
+        def compile = optimized ? "release" : "debug"
+        println "Additional compiler args for ${compile} version: " + compilerArgs.get()
     }
 }
 
@@ -134,7 +137,7 @@ if (!os.isWindows()) {
 }
 
 dependencies {
-    // both cpp-library and java-library plugin use api & implementation configurations, 
+    // both cpp-library and java-library plugin use api & implementation configurations,
     // hence cpp-library tries to resolve java dependencies, workaround with configurations not known by cpp
 //    api "com.github.calimero:calimero-core:${version}"
     compileOnly "com.github.calimero:calimero-core:${version}"
