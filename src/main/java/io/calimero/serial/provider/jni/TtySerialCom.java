@@ -129,21 +129,8 @@ final class TtySerialCom implements SerialCom {
 
 	private static final Logger logger = System.getLogger(loggerName);
 
-	static final class Timeouts {
-		final int readInterval;
-		final int readTotalMultiplier;
-		final int readTotalConstant;
-		final int writeTotalMultiplier;
-		final int writeTotalConstant;
-
-		Timeouts(final int readInterval, final int readTotalMultiplier, final int readTotalConstant,
-				final int writeTotalMultiplier, final int writeTotalConstant) {
-			this.readInterval = readInterval;
-			this.readTotalMultiplier = readTotalMultiplier;
-			this.readTotalConstant = readTotalConstant;
-			this.writeTotalMultiplier = writeTotalMultiplier;
-			this.writeTotalConstant = writeTotalConstant;
-		}
+	record Timeouts(int readInterval, int readTotalMultiplier, int readTotalConstant, int writeTotalMultiplier,
+					int writeTotalConstant) {
 
 		@Override
 		public String toString() {
