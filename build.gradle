@@ -100,7 +100,7 @@ library {
     binaries.configureEach {
         def compileTask = compileTask.get()
         compileTask.positionIndependentCode = "true"
-        
+
         if ((toolChain in Clang || toolChain in Gcc) && !compileTask.isOptimized()) {
             // maybe -O0 works better, -Og still does several optimizations
             // option "-g" is included by default
@@ -144,7 +144,7 @@ if (!os.isWindows()) {
 }
 
 dependencies {
-    // both cpp-library and java-library plugin use api & implementation configurations, 
+    // both cpp-library and java-library plugin use api & implementation configurations,
     // hence cpp-library tries to resolve java dependencies, workaround with configurations not known by cpp
 //    api "io.calimero:calimero-core:${version}"
     compileOnly "io.calimero:calimero-core:${version}"
@@ -162,7 +162,7 @@ publishing {
             from components.java
             pom {
                 name = 'Calimero serial-native service provider'
-                description = 'Serial comummication provider using JNI'
+                description = 'Serial communication provider using JNI'
                 url = 'https://github.com/calimero-project/serial-native'
                 inceptionYear = '2006'
                 licenses {

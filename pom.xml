@@ -8,7 +8,7 @@
 	</parent>
 	<artifactId>serial-native</artifactId>
 	<name>Calimero serial-native service provider</name>
-	<description>Serial comummication provider using JNI</description>
+	<description>Serial communication provider using JNI</description>
 	<scm>
 		<url>https://github.com/calimero-project/serial-native.git</url>
 	</scm>
