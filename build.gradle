@@ -156,7 +156,7 @@ publishing {
             from components.java
             pom {
                 name = 'Calimero serial-native service provider'
-                description = 'Serial comummication provider using JNI'
+                description = 'Serial communication provider using JNI'
                 url = 'https://github.com/calimero-project/serial-native'
                 inceptionYear = '2006'
                 licenses {
