@@ -29,7 +29,7 @@ For Linux, macOS, Windows; ARM(v7) is not working. The compiled library can be f
     ./gradlew build
 
 #### With Maven
-For Linux, macOS, Windows, ARMv7. The compiled library can be found in the _target/nar_ directory.
+For Linux, macOS, Windows, ARMv7, Aarch64. The compiled library can be found in the _target/nar_ directory.
 
     mvn nar:nar-compile
 
