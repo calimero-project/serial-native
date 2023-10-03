@@ -33,8 +33,7 @@
 
 	<properties>
 		<compile.debug>false</compile.debug>
-		<java.home>/Library/Java/JavaVirtualMachines/liberica-jdk-19.jdk/Contents/Home</java.home>
-<!--		<java.home>/usr/lib/jvm/jdk-11</java.home>-->
+		<java.home>${JAVA_HOME}</java.home>
 	</properties>
 
 	<build>
