@@ -1,6 +1,6 @@
 /*
     Calimero 2 - A library for KNX network access
-    Copyright (c) 2011, 2022 B. Malinowsky
+    Copyright (c) 2011, 2023 B. Malinowsky
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -47,6 +47,7 @@
 #include <string.h>
 #include <errno.h>
 #include <dirent.h>
+#include <limits.h>
 
 // next include is for select()
 #include <sys/select.h>
