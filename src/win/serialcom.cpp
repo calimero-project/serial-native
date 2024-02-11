@@ -1,6 +1,6 @@
 /*
     Calimero 2 - A library for KNX network access
-    Copyright (c) 2007, 2022 B. Malinowsky
+    Copyright (c) 2007, 2024 B. Malinowsky
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -81,7 +81,7 @@ static void ThrowException(JNIEnv* env, DWORD dwError)
 		dwError = GetLastError();
 	FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM  | FORMAT_MESSAGE_MAX_WIDTH_MASK,
 		0, dwError, 0, msg, 256, 0);
-    jclass c = env->FindClass("Ljava/io/IOException;");
+    jclass c = env->FindClass("java/io/IOException");
 	env->ThrowNew(c, msg);
 }
 
@@ -530,7 +530,7 @@ JNIEXPORT jobject JNICALL Java_io_calimero_serial_provider_jni_TtySerialCom_getT
 	if (!GetCommTimeouts(GetFD(env, obj), &to))
 		ThrowException(env, QUERY_GETLASTERROR);
 	else {
-		jclass cls = env->FindClass("Lio/calimero/serial/provider/jni/TtySerialCom$Timeouts;");
+		jclass cls = env->FindClass("io/calimero/serial/provider/jni/TtySerialCom$Timeouts");
 		jmethodID ctor = env->GetMethodID(cls, "<init>", "(IIIII)V");
 		timeouts = env->NewObject(cls, ctor, to.ReadIntervalTimeout,
 			to.ReadTotalTimeoutMultiplier, to.ReadTotalTimeoutConstant,
