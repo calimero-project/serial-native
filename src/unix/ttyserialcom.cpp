@@ -1221,7 +1221,7 @@ static ssize_t read(fd_t fd, uint8_t* buffer, uint32_t /*off*/, uint32_t len)
     buf[0] = 0;
     uint8_t* pb = buffer + off;
     if (offset > 0) {
-        int used = sprintf(buf, "read data [%llu us] (length %zu):", timestamp_diff(start), offset);
+        int used = sprintf(buf, "read data [%llu us] (length %zu):", (unsigned long long) timestamp_diff(start), offset);
         for (unsigned i = 0; i < offset; ++i)
             snprintf(buf + used + 3 * i, 4, " %02X", *pb++);
         trace(buf);
