@@ -488,8 +488,9 @@ static bool hasDevSerialLink(JNIEnv* env, jstring portId)
 
         trace("found entry", dp->d_name);
         char abs[PATH_MAX];
-        realpath(filename, abs);
-        if (strcmp(port, abs) == 0) {
+        if (realpath(filename, abs) == NULL)
+            trace_error("error in realpath for", filename);
+        else if (strcmp(port, abs) == 0) {
             hasLink = true;
             dbg_out("%s -> %s\n", dp->d_name, abs);
             break;
