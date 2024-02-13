@@ -786,7 +786,7 @@ static int32_t getTermiosBaudrate(uint32_t baudrate)
 #ifdef B576000
     case 576000:
         return B576000;
-#endif /* B57600 */
+#endif /* B576000 */
 #ifdef B921600
     case 921600:
         return B921600;
