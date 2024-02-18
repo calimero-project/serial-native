@@ -517,8 +517,11 @@ JNIEXPORT jboolean JNICALL Java_io_calimero_serial_provider_jni_TtySerialCom_por
     int error;
     // this will open the port, alternatives might be to use /dev/serial or /proc/tty
     fd_t fd = openPort(env, portID, false, &error);
-    if (fd == INVALID_FD)
+    if (fd == INVALID_FD) {
+        if (error == EBUSY || error == EPERM || error == EACCES)
+            return JNI_TRUE;
         return JNI_FALSE;
+    }
 #if defined TIOCGSERIAL
     jboolean valid = JNI_FALSE;
     struct serial_struct info;
