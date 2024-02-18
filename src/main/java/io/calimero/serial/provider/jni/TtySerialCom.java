@@ -1,6 +1,6 @@
 /*
     Calimero 2 - A library for KNX network access
-    Copyright (c) 2006, 2023 B. Malinowsky
+    Copyright (c) 2006, 2024 B. Malinowsky
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -36,11 +36,11 @@
 
 package io.calimero.serial.provider.jni;
 
+import android.util.Log;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.System.Logger;
-import java.lang.System.Logger.Level;
 import java.time.Duration;
 import java.util.List;
 import java.util.Locale;
@@ -52,6 +52,8 @@ import io.calimero.serial.spi.SerialCom;
 /**
  * Provider for serial communication implemented using JNI. The implementation of this API contains platform dependent
  * code.
+ * This Android-specific code uses Log.* for logging purposes; the AndroidHandler for logging sucks, it doesn't use Formatter as required.
+ * And setup requires to use "adb shell setprop log.tag.jni VERBOSE" to show debug/trace logs.
  *
  * @author B. Malinowsky
  */
@@ -113,8 +115,8 @@ final class TtySerialCom implements SerialCom {
 	// #define CE_TXFULL 0x0100 // TX Queue is full
 	// #define CE_MODE 0x8000 // Requested mode unsupported
 
-	private static final List<String> defaultPortPrefixes = System.getProperty("os.name").toLowerCase(Locale.ENGLISH).contains("windows") ? List.of("\\\\.\\COM")
-					: List.of("/dev/ttyS", "/dev/ttyACM", "/dev/ttyUSB", "/dev/ttyAMA");
+	private static final List<String> defaultPortPrefixes = System.getProperty("os.name").toLowerCase(Locale.ENGLISH).contains("windows")
+			? List.of("\\\\.\\COM") : List.of("/dev/ttyS", "/dev/ttyACM", "/dev/ttyUSB", "/dev/ttyAMA");
 
 	static List<String> defaultPortPrefixes() { return defaultPortPrefixes; }
 
@@ -127,8 +129,6 @@ final class TtySerialCom implements SerialCom {
 	private final ReentrantLock lock = new ReentrantLock();
 	private InputStream is;
 	private OutputStream os;
-
-	private static final Logger logger = System.getLogger(loggerName);
 
 	record Timeouts(int readInterval, int readTotalMultiplier, int readTotalConstant, int writeTotalMultiplier,
 					int writeTotalConstant) {
@@ -143,12 +143,12 @@ final class TtySerialCom implements SerialCom {
 	static {
 		boolean b = false;
 		try {
-			logger.log(Level.TRACE, "check Java library path {0}", System.getProperty("java.library.path"));
+			Log.v(loggerName, "check Java library path " + System.getProperty("java.library.path"));
 			System.loadLibrary("serialcom");
 			b = true;
 		}
 		catch (SecurityException | UnsatisfiedLinkError e) {
-			logger.log(Level.DEBUG, e.getMessage());
+			Log.d(loggerName, e.getMessage());
 		}
 		loaded = b;
 	}
@@ -163,7 +163,7 @@ final class TtySerialCom implements SerialCom {
 			final Duration receiveTimeout) throws IOException {
 		if (!loaded)
 			throw new KnxRuntimeException("no serialcom library found");
-		logger.log(Level.DEBUG, "opening serial port {0}", portId);
+		Log.d(loggerName, "opening serial port " + portId);
 		open(portId);
 		setSerialPortParams(baudrate, databits, stopbits, parity);
 		setFlowControlMode(mode);
@@ -243,7 +243,7 @@ final class TtySerialCom implements SerialCom {
 				close0();
 		}
 		catch (final IOException e) {
-			logger.log(Level.ERROR, "closing serial port", e);
+			Log.w(loggerName, "closing serial port", e);
 		}
 		fd = INVALID_HANDLE;
 	}

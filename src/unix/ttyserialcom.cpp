@@ -71,6 +71,9 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+#ifdef __ANDROID__
+#include <android/log.h>
+#endif
 #else
 // non-debug stuff provides dummies to keep library small
 
@@ -141,8 +144,12 @@ static void trace(const char* msg, const char* msg2 = 0)
     const char* opt = msg2 != 0 ? msg2 : "";
     const char* space = msg2 != 0 ? " " : "";
 
+#ifdef __ANDROID__
+    __android_log_print(ANDROID_LOG_DEBUG, "serialcom", "%s%s%s\n", msg, space, opt);
+#else
     printf("[%s] %s%s%s\n", timestamp(), msg, space, opt);
     fflush(stdout);
+#endif
 }
 
 #if !defined __APPLE__
@@ -284,6 +291,9 @@ static pid_t readPid(const char* filename)
 // all files are located in /var/lock/
 static bool ensureLock(const char* port)
 {
+#ifdef __ANDROID__
+    return true;
+#endif
     trace("ensure lock in /var/lock/");
     const size_t size = 50;
     char name[size];
@@ -335,6 +345,9 @@ static bool ensureLock(const char* port)
 
 static bool releaseLock(const char* port)
 {
+#ifdef __ANDROID__
+    return true;
+#endif
     const char* name = strrchr(port, '/');
     name = name == 0 ? port : name + 1;
 
