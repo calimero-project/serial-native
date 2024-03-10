@@ -1,6 +1,6 @@
 /*
     Calimero 2 - A library for KNX network access
-    Copyright (c) 2022, 2023 B. Malinowsky
+    Copyright (c) 2022, 2024 B. Malinowsky
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -44,6 +44,9 @@ import java.util.stream.IntStream;
 import tuwien.auto.calimero.serial.spi.SerialCom;
 import tuwien.auto.calimero.serial.spi.SerialConnectionProvider;
 
+/**
+ * Serial connection provider for serial communication using JNI.
+ */
 public final class TtySerialComProvider implements SerialConnectionProvider {
 	@Override
 	public SerialCom open(final Settings settings) throws IOException {
@@ -61,4 +64,7 @@ public final class TtySerialComProvider implements SerialConnectionProvider {
 				.filter(TtySerialCom::portExists).forEach(ports::add));
 		return ports;
 	}
+
+	@Override
+	public String toString() { return "JNI serial connection provider"; }
 }
