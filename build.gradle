@@ -12,7 +12,7 @@ repositories {
 }
 
 group = 'io.calimero'
-version = '2.6-SNAPSHOT'
+version = '2.6-rc1'
 
 java {
     toolchain {
