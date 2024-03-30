@@ -3,6 +3,7 @@ plugins {
     id 'java-library'
 	id 'com.github.ben-manes.versions' version '0.51.0'
     id 'visual-studio'
+    id 'signing'
     id 'maven-publish'
 }
 
@@ -196,5 +197,11 @@ publishing {
             url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
             credentials(PasswordCredentials)
         }
+    }
+}
+
+signing {
+    if (project.hasProperty("signing.keyId")) {
+        sign publishing.publications.mavenJava
     }
 }
