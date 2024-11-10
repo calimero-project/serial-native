@@ -24,14 +24,13 @@ git clone https://github.com/calimero-project/serial-native.git
 ~~~
 
 #### With Gradle 
-For Linux, macOS, Windows; ARM(v7) is not working. The compiled library can be found in the _build/lib_ directory.
+For Linux, macOS, Windows; ARMv7 is not working. The compiled library can be found in the _build/lib_ directory.
 
     ./gradlew build
 
 #### With Maven
-For Linux, macOS, Windows, ARMv7, Aarch64. The compiled library can be found in the _target/nar_ directory.
+For Linux, macOS, ARMv7. The compiled library can be found in the _target/nar_ directory.
 
     mvn nar:nar-compile
 
 The `nar` maven plugin supports compiling native code on a number of different architectures. Currently, the POM contains settings for Linux and macOS, which need to be adjusted depending on Java version and directory. To skip running any nar plugins, use `-Dnar.skip=true`.
-
