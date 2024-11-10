@@ -1,4 +1,5 @@
 import org.gradle.internal.os.OperatingSystem
+import org.gradle.nativeplatform.toolchain.internal.NativeToolChainRegistryInternal
 
 plugins {
 	`cpp-library`
@@ -81,6 +82,20 @@ tasks.named("assemble") {
 	doFirst {
 		logger.info("Platform: $os")
 		logger.info("Java home directory: $jdk")
+	}
+}
+
+toolChains {
+	// Windows: support compilation using the VS Build Tools which aren't found by Gradle
+	if (os.isWindows) {
+		(this as NativeToolChainRegistryInternal).registerDefaultToolChain("visualCppBuildTools", VisualCpp::class.java)
+		this.withType<VisualCpp>().configureEach {
+			if (name == "visualCppBuildTools") {
+				val vsToolsInstallDir = "file://C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools"
+				logger.info("Using VS Build Tools directory $vsToolsInstallDir")
+				setInstallDir(vsToolsInstallDir)
+			}
+		}
 	}
 }
 
