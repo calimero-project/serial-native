@@ -20,8 +20,8 @@ version = "2.6-rc1"
 
 // set this variable manually to Java home directory if default location does not work
 val javaHome = providers.systemProperty("java.home")
-val cppStd = "-std=c++17"
 val os = OperatingSystem.current()
+val cppStd = if (os.isWindows) "/std:c++17" else "-std=c++17"
 
 java {
 	toolchain {
@@ -120,32 +120,33 @@ library {
 	linkage = listOf(Linkage.SHARED)
 
 	binaries.configureEach(CppSharedLibrary::class.java) {
-		val compileTask = compileTask.get()
-		compileTask.isPositionIndependentCode = true
-		compileTask.isDebuggable = !compileTask.isOptimized
-
-		when (toolChain) {
-			is Clang, is Gcc -> {
-				if (compileTask.isOptimized) {
-					// "-Wl,-s" not necessary
-					compileTask.compilerArgs =
-						if (toolChain is Clang) listOf(cppStd, "-Wall", "-Oz", "-fno-cxx-exceptions")
-						else listOf(cppStd, "-Wall", "-Os", "-fno-exceptions")
-				} else {
+		compileTask.get().apply {
+			isPositionIndependentCode = true
+			isDebuggable = !isOptimized
+			compilerArgs = if (isOptimized) {
+				when (toolChain.get()) {
+					// "-Wl,-s" not necessary because we have a dedicated task for that
+					is Gcc -> listOf(cppStd, "-Wall", "-Os", "-fno-exceptions", "-fno-unwind-tables", "-fno-asynchronous-unwind-tables")
+					is Clang -> listOf(cppStd, "-Wall", "-Oz", "-fno-cxx-exceptions", "-fno-unwind-tables")
+					is VisualCpp -> listOf(cppStd, "/Os", "/Wall", "/GS-")
+					else -> listOf()
+				}
+			} else { // debug
+				when (toolChain.get()) {
 					// maybe -O0 works better, -Og still does several optimizations
 					// option "-g" is included by default
-					compileTask.compilerArgs = listOf(cppStd, "-DDEBUG", "-Wall", "-Og")
+					is Gcc, is Clang -> listOf(cppStd, "-DDEBUG", "-Wall", "-Og")
+					is VisualCpp -> listOf(cppStd, "/DDEBUG", "/Wall") // '/Zi' already included
+					else -> listOf()
 				}
 			}
-			is VisualCpp -> {
-				if (compileTask.isOptimized) {
-					compileTask.compilerArgs = listOf("/Os", "/Wall")
-				} else {
-					// '/Zi' already included
-					compileTask.compilerArgs = listOf("/DDEBUG", "/Wall")
-					val linkTask = linkTask.get()
-					linkTask.linkerArgs = listOf("/DEBUG")
-				}
+		}
+		linkTask.get().apply {
+			debuggable = !isOptimized
+			linkerArgs = toolChain.map { tc ->
+				if (tc is Gcc && isOptimized) listOf("-Wl,-z,max-page-size=0x1000")
+				else if (tc is VisualCpp && isOptimized) listOf("/NODEFAULTLIB", "/NOENTRY", "kernel32.lib")
+				else listOf()
 			}
 		}
 	}
