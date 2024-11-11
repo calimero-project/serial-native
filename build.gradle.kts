@@ -132,7 +132,6 @@ library {
 			isDebuggable = !isOptimized
 			compilerArgs = if (isOptimized) {
 				when (toolChain.get()) {
-					// "-Wl,-s" not necessary because we have a dedicated task for that
 					is Gcc -> listOf(cppStd, "-Wall", "-Os", "-fno-exceptions", "-fno-unwind-tables", "-fno-asynchronous-unwind-tables")
 					is Clang -> listOf(cppStd, "-Wall", "-Oz", "-fno-cxx-exceptions", "-fno-unwind-tables")
 					is VisualCpp -> listOf(cppStd, "/Os", "/Wall", "/GS-")
@@ -151,7 +150,7 @@ library {
 		linkTask.get().apply {
 			debuggable = !isOptimized
 			linkerArgs = toolChain.map { tc ->
-				if (tc is Gcc && isOptimized) listOf("-Wl,-z,max-page-size=0x1000")
+				if (tc is Gcc && isOptimized) listOf("-Wl,-z,max-page-size=0x1000", "-Wl,-s")
 				else if (tc is VisualCpp && isOptimized) listOf("/NODEFAULTLIB", "/NOENTRY", "kernel32.lib")
 				else listOf()
 			}
