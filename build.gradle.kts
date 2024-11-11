@@ -82,8 +82,8 @@ tasks.named("assemble") {
 }
 
 toolChains {
-	// Windows: support compilation using the VS Build Tools which aren't found by Gradle
 	if (os.isWindows) {
+		// Windows: support compilation using the VS Build Tools which aren't found by Gradle
 		(this as NativeToolChainRegistryInternal).registerDefaultToolChain("visualCppBuildTools", VisualCpp::class.java)
 		this.withType<VisualCpp>().configureEach {
 			if (name == "visualCppBuildTools") {
@@ -91,6 +91,13 @@ toolChains {
 				logger.info("Using VS Build Tools directory $vsToolsInstallDir")
 				setInstallDir(vsToolsInstallDir)
 			}
+		}
+	}
+	if (os.isLinux) {
+		// ARMv7 support on Linux (e.g., Raspberry)
+		(this as NativeToolChainRegistryInternal).registerDefaultToolChain("gccArmv7", Gcc::class.java)
+		this.withType<Gcc>().configureEach {
+			if (name == "gccArmv7") target("host:arm-v7")
 		}
 	}
 }
