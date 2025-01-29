@@ -1,6 +1,6 @@
 /*
     Calimero 2 - A library for KNX network access
-    Copyright (c) 2006, 2023 B. Malinowsky
+    Copyright (c) 2006, 2025 B. Malinowsky
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -143,7 +143,6 @@ final class TtySerialCom implements SerialCom {
 	static {
 		boolean b = false;
 		try {
-			logger.log(Level.TRACE, "check Java library path {0}", System.getProperty("java.library.path"));
 			System.loadLibrary("serialcom");
 			b = true;
 		}
@@ -151,11 +150,6 @@ final class TtySerialCom implements SerialCom {
 			logger.log(Level.DEBUG, e.getMessage());
 		}
 		loaded = b;
-	}
-
-	public TtySerialCom() {
-		if (!loaded)
-			throw new KnxRuntimeException("no serialcom library found");
 	}
 
 	TtySerialCom(final String portId, final int baudrate, final int databits, final StopBits stopbits,
