@@ -112,8 +112,8 @@ final class TtySerialCom implements SerialCom {
 	// #define CE_TXFULL 0x0100 // TX Queue is full
 	// #define CE_MODE 0x8000 // Requested mode unsupported
 
-	private static final List<String> defaultPortPrefixes = System.getProperty("os.name").toLowerCase(Locale.ENGLISH).contains("windows") ? List.of("\\\\.\\COM")
-					: List.of("/dev/ttyS", "/dev/ttyACM", "/dev/ttyUSB", "/dev/ttyAMA");
+	private static final List<String> defaultPortPrefixes = System.getProperty("os.name").toLowerCase(Locale.ENGLISH).contains("windows")
+			? List.of("\\\\.\\COM") : List.of("/dev/ttyS", "/dev/ttyACM", "/dev/ttyUSB", "/dev/ttyAMA");
 
 	static List<String> defaultPortPrefixes() { return defaultPortPrefixes; }
 
