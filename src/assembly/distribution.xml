@@ -18,7 +18,7 @@
 			<outputDirectory></outputDirectory>
 		</file>
 		<file>
-			<source>build.gradle</source>
+			<source>build.gradle.kts</source>
 			<outputDirectory></outputDirectory>
 		</file>
 		<file>
