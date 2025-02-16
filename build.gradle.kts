@@ -175,7 +175,7 @@ if (!os.isWindows) {
 dependencies {
 	// both cpp-library and java-library plugin use api & implementation configurations,
 	// hence cpp-library tries to resolve java dependencies, workaround with configurations not known by cpp
-//    api "com.github:calimero-core:${version}"
+//    api("com.github.calimero:calimero-core:${version}")
 	compileOnly("com.github.calimero:calimero-core:$version")
 	runtimeOnly("com.github.calimero:calimero-core:$version")
 }
