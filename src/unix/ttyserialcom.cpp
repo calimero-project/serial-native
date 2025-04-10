@@ -1,5 +1,5 @@
 /*
-    Calimero 2 - A library for KNX network access
+    Calimero 3 - A library for KNX network access
     Copyright (c) 2011, 2024 B. Malinowsky
 
     This library is free software; you can redistribute it and/or
@@ -17,7 +17,7 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-//  This file is part of Calimero 2, a library for KNX network access.
+//  This file is part of Calimero 3, a library for KNX network access.
 //  It provides Java Native Interface (JNI) access to tty serial port I/O
 //  communication devices.
 //  The JNI is defined in serialcom.h.
