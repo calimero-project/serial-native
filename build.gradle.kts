@@ -55,20 +55,19 @@ tasks.named<Jar>("jar") {
 		include("LICENSE.LESSER")
 		into("META-INF")
 	}
+	from("${projectDir}/bin") {
+		include("linux*/**", "win*/**")
+	}
 }
 
 tasks.named<Jar>("sourcesJar") {
 	from("$projectDir") {
 		include("README.md")
+		include("LICENSE")
+		include("LICENSE.LESSER")
 	}
 	from("${projectDir}/src") {
 		include("include/**", "unix/**", "win/**")
-	}
-}
-
-tasks.named<Jar>("jar") {
-	from("${projectDir}/bin") {
-		include("linux*/**", "win*/**")
 	}
 }
 
