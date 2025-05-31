@@ -16,7 +16,7 @@ repositories {
 }
 
 group = "io.calimero"
-version = "2.6-rc2"
+version = "2.6"
 
 // set this variable manually to Java home directory if default location does not work
 val javaHome = providers.systemProperty("java.home")
