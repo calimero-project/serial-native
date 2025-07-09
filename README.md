@@ -1,4 +1,4 @@
-Calimero serial communication provider [![CI with Gradle](https://github.com/calimero-project/serial-native/actions/workflows/gradle.yml/badge.svg)](https://github.com/calimero-project/serial-native/actions/workflows/gradle.yml)
+Calimero serial communication provider [![CI with Gradle](https://github.com/calimero-project/serial-native/actions/workflows/gradle.yml/badge.svg)](https://github.com/calimero-project/serial-native/actions/workflows/gradle.yml) [![](https://jitpack.io/v/calimero-project/serial-native.svg)](https://jitpack.io/#calimero-project/serial-native) [![](https://img.shields.io/badge/jitpack-master-brightgreen?label=JitPack)](https://jitpack.io/#calimero-project/serial-native/master)
 =====
 
 Provider for serial access to KNX networks using JNI. It contains Linux, macOS, and Windows libraries written in C.
