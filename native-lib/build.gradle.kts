@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "io.calimero"
-version = "3.0-SNAPSHOT"
+version = "3.0-M1"
 
 // set this variable manually to Java home directory if default location does not work
 val javaHome = providers.systemProperty("java.home")

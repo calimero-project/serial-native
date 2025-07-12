@@ -15,7 +15,7 @@ repositories {
 }
 
 group = "io.calimero"
-version = "3.0-SNAPSHOT"
+version = "3.0-M1"
 
 java {
 	toolchain {
