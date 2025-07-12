@@ -1,3 +1,7 @@
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+
 plugins {
 	`java-library`
 	`maven-publish`
@@ -51,6 +55,21 @@ tasks.named<Jar>("jar") {
 	}
 	from("${projectDir}/bin") {
 		include("linux*/**", "win*/**")
+	}
+
+	manifest {
+		val gitHash = providers.exec {
+			commandLine("git", "-C", "$projectDir", "rev-parse", "--verify", "--short", "HEAD")
+		}.standardOutput.asText.map { it.trim() }
+		val buildDate = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z")
+			.withZone(ZoneId.of("UTC"))
+			.format(Instant.now())
+
+		attributes(
+			"Implementation-Version" to project.version,
+			"Revision" to gitHash.get(),
+			"Build-Date" to buildDate
+		)
 	}
 }
 
