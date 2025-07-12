@@ -54,7 +54,7 @@ tasks.named<Jar>("jar") {
 		into("META-INF")
 	}
 	from("${projectDir}/bin") {
-		include("linux*/**", "win*/**")
+		include("linux*/**", "win*/**", "mac*/**")
 	}
 
 	manifest {

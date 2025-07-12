@@ -95,6 +95,7 @@ library {
 			linkerArgs = toolChain.map { tc ->
 				if (tc is Gcc && isOptimized) listOf("-Wl,-z,max-page-size=0x1000", "-Wl,-s")
 				else if (tc is VisualCpp && isOptimized) listOf("/NODEFAULTLIB", "/NOENTRY", "kernel32.lib")
+				else if (tc is Clang && isOptimized) listOf("-install_name", "@rpath/lib${baseName.get()}.dylib")
 				else listOf()
 			}
 		}
