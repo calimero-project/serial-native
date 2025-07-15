@@ -55,6 +55,7 @@
 				<include>**/README</include>
 				<include>**/*.dll</include>
 				<include>**/*.so</include>
+				<include>**/*.dylib</include>
 			</includes>
 		</fileSet>
 	</fileSets>
