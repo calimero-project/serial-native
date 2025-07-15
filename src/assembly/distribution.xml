@@ -41,6 +41,10 @@
 			<source>gradle/wrapper/gradle-wrapper.properties</source>
 			<outputDirectory>gradle/wrapper/</outputDirectory>
 		</file>
+		<file>
+			<source>native-lib/build.gradle.kts</source>
+			<outputDirectory>native-lib</outputDirectory>
+		</file>
 	</files>
 	<fileSets>
 		<fileSet>

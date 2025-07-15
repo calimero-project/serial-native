@@ -48,7 +48,7 @@
 				<configuration>
 					<output>serialcom</output>
 					<cpp>
-						<sourceDirectory>src</sourceDirectory>
+						<sourceDirectory>native-lib/src</sourceDirectory>
 						<defines>
 <!--      						<define>DEBUG</define> -->
 						</defines>
