@@ -4,7 +4,7 @@ Calimero serial communication provider [![CI with Gradle](https://github.com/cal
 Provider for serial access to KNX networks using JNI. It contains Linux, macOS, and Windows libraries written in C.
 
 Compile the C sources for your target platform, or use one of the precompiled libraries in the 
-`jar` archive available for Windows and Linux. Compiling the C sources requires an installed C/C++ toolchain.
+`jar` archive available for Windows, Linux, and macOS. Compiling the C sources requires an installed C/C++ toolchain.
 
 This provider uses `System.Logger` for logging.
 
@@ -24,13 +24,19 @@ git clone https://github.com/calimero-project/serial-native.git
 ~~~
 
 #### With Gradle 
-For Linux, macOS, Windows; ARMv7 is not working. The compiled library can be found in the _build/lib_ directory.
+For Linux, macOS, Windows. The compiled library can be found in the _build/lib_ directory.
 
     ./gradlew build
 
 #### With Maven
-For Linux, macOS, ARMv7. The compiled library can be found in the _target/nar_ directory.
+The Java library is compiled via 
+
+    mvn clean compile
+
+The native library is compiled using the `NAR` maven plugin (the plugin configuration assumes that the _JAVA_HOME_ environment variable is set).
+The POM contains settings for Linux and macOS:
 
     mvn nar:nar-compile
 
-The `nar` maven plugin supports compiling native code on a number of different architectures. Currently, the POM contains settings for Linux and macOS, which need to be adjusted depending on Java version and directory. To skip running any nar plugins, use `-Dnar.skip=true`.
+The compiled library can be found in the _target/nar_ directory.
+The `NAR` maven plugin supports compiling native code on a number of different architectures.
