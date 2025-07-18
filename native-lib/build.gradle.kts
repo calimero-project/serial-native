@@ -30,7 +30,7 @@ toolChains {
 		(this as NativeToolChainRegistryInternal).registerDefaultToolChain("visualCppBuildTools", VisualCpp::class.java)
 		this.withType<VisualCpp>().configureEach {
 			if (name == "visualCppBuildTools") {
-				val vsToolsInstallDir = "file://C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools"
+				val vsToolsInstallDir = "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools"
 				logger.info("Using VS Build Tools directory $vsToolsInstallDir")
 				setInstallDir(vsToolsInstallDir)
 			}
