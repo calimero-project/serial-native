@@ -17,6 +17,7 @@
 /target/
 /bin/main/
 /bin/test/
+/native-lib/.settings
 
 # Gradle
 .gradle
