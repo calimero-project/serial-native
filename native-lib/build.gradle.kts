@@ -4,7 +4,7 @@ import org.gradle.nativeplatform.toolchain.internal.NativeToolChainRegistryInter
 plugins {
 	`cpp-library`
 	`visual-studio`
-	id("com.github.ben-manes.versions") version "0.52.0"
+	id("com.github.ben-manes.versions") version "0.53.0"
 }
 
 group = "io.calimero"
