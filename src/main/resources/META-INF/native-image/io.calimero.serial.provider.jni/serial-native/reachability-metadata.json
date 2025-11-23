@@ -1,0 +1,31 @@
+{
+  "reflection": [
+    {
+      "type": "io.calimero.serial.provider.jni.TtySerialComProvider"
+    },
+    {
+      "type": "io.calimero.serial.provider.jni.TtySerialCom",
+      "jniAccessible": true,
+      "fields": [
+        { "name": "fd" }
+      ]
+    },
+    {
+      "type": "io.calimero.serial.provider.jni.TtySerialCom$Timeouts",
+      "jniAccessible": true,
+      "allDeclaredConstructors": true,
+      "fields": [
+        { "name": "readInterval" },
+        { "name": "readTotalMultiplier" },
+        { "name": "readTotalConstant" },
+        { "name": "writeTotalMultiplier" },
+        { "name": "writeTotalConstant" }
+      ]
+    }
+  ],
+  "resources": [
+    {
+      "glob": "META-INF/services/io.calimero.serial.spi.SerialConnectionProvider"
+    }
+  ]
+}
