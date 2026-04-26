@@ -206,27 +206,6 @@ static void setFD(JNIEnv* env, jobject obj, fd_t fd)
     env->SetLongField(obj, fid, static_cast<jlong>(fd));
 }
 
-static const char* lockDir = "/var/lock/";
-static const char* devPrefix = "/dev/";
-static const char* lckPrefix = "LCK..";
-static const char* pidPrefix = "PID..";
-
-static const uint32_t MaxFileNameLength = 100;
-
-static char lockedPort[MaxFileNameLength];
-
-//
-// some string helper
-//
-
-static size_t createLockName(char* out, const char* dir, const char* namePrefix, const char* name)
-{
-    strcpy(out, dir);
-    strcat(out, namePrefix);
-    strcat(out, name);
-    return strlen(out);
-}
-
 // keeps us from pulling in s(n)printf for number conversions in release builds,
 // which adds several KB for nothing
 // returns str pointer
@@ -248,6 +227,27 @@ static char* itoa(int32_t i, char* str)
         *t = c;
     }
     return str;
+}
+
+
+
+#if defined USE_UUCP_LOCKING
+
+static const char* lockDir = "/var/lock/";
+static const char* devPrefix = "/dev/";
+static const char* lckPrefix = "LCK..";
+static const char* pidPrefix = "PID..";
+
+static const uint32_t MaxFileNameLength = 100;
+static char lockedPort[MaxFileNameLength];
+
+
+static size_t createLockName(char* out, const char* dir, const char* namePrefix, const char* name)
+{
+    strcpy(out, dir);
+    strcat(out, namePrefix);
+    strcat(out, name);
+    return strlen(out);
 }
 
 static bool tryLink(const char* forName, const char* linkName)
@@ -348,6 +348,16 @@ static bool releaseLock(const char* port)
         unlink(lockFile);
     return true;
 }
+
+#else // don't use UUCP-style locking
+
+static const uint32_t MaxFileNameLength = 1;
+static char lockedPort[MaxFileNameLength];
+static bool ensureLock(const char* port) { return true; }
+static bool releaseLock(const char* port) { return true; }
+
+#endif // USE_UUCP_LOCKING
+
 
 static bool closePort(fd_t fd)
 {
