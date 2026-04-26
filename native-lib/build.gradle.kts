@@ -15,6 +15,12 @@ val javaHome = providers.systemProperty("java.home")
 val os = OperatingSystem.current()!!
 val cppStd = if (os.isWindows) "/std:c++17" else "-std=c++17"
 
+// Supported UNIX locking modes in addition to TIOCEXCL:
+// USE_UUCP_LOCKING: use UUCP-style lock  -> /var/lock/
+// USE_FCNTL_LOCKING: use UNIX record lock -> fcntl(F_SETLK)
+val unixLockingModes: List<String> = (project.findProperty("unixLockingModes") as String?) ?.split(" ") ?.filter { it.isNotBlank() }
+	?: listOf("-DUSE_UUCP_LOCKING", "-DUSE_FCNTL_LOCKING")
+
 tasks.named("assemble") {
 	val jdk = javaHome.get()
 	val os = os
@@ -89,6 +95,8 @@ library {
 					else -> listOf()
 				}
 			}
+			if (toolChain.get() !is VisualCpp)
+				compilerArgs.addAll(unixLockingModes)
 		}
 		linkTask.get().apply {
 			debuggable = !isOptimized
