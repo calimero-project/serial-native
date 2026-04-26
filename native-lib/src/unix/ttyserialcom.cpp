@@ -1,6 +1,6 @@
 /*
     Calimero 3 - A library for KNX network access
-    Copyright (c) 2011, 2024 B. Malinowsky
+    Copyright (c) 2011, 2026 B. Malinowsky
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -435,21 +435,24 @@ static fd_t openPort(JNIEnv* env, jstring portId, bool configurePort, int* lastE
         releaseLock(port);
     }
     else {
-        // we continue if we are not able to set exclusive mode
         if (ioctl(fd, TIOCEXCL) == -1) {
             error = errno;
             perror("set exclusive");
+            close(fd);
+            releaseLock(port);
+            fd = INVALID_FD;
         }
+        else {
+            if (configurePort) {
+                // we continue if we are not able to save old port settings
+                struct termios saved;
+                if (tcgetattr(fd, &saved) == -1) {
+                    error = errno;
+                    perror("save old port settings");
+                }
 
-        if (configurePort) {
-            // we continue if we are not able to save old port settings
-            struct termios saved;
-            if (tcgetattr(fd, &saved) == -1) {
-                error = errno;
-                perror("save old port settings");
+                setPortDefaults(fd);
             }
-
-            setPortDefaults(fd);
         }
     }
 
