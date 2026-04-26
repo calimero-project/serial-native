@@ -453,6 +453,21 @@ static fd_t openPort(JNIEnv* env, jstring portId, bool configurePort, int* lastE
             fd = INVALID_FD;
         }
         else {
+
+#if defined USE_FCNTL_LOCKING
+            trace("acquire fcntl lock");
+            struct flock lock = { 0 };
+            lock.l_type = F_WRLCK;
+            lock.l_whence = SEEK_SET;
+            if (fcntl(fd, F_SETLK, &lock) == -1) {
+                error = errno;
+                perror("fcntl lock");
+                close(fd);
+                fd = INVALID_FD;
+            }
+            else
+#endif // USE_FCNTL_LOCKING
+
             if (configurePort) {
                 // we continue if we are not able to save old port settings
                 struct termios saved;
