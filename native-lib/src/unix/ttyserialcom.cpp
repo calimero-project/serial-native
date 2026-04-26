@@ -48,8 +48,6 @@
 #include <errno.h>
 #include <dirent.h>
 #include <limits.h>
-
-// next include is for select()
 #include <sys/select.h>
 #include <signal.h> // kill
 
@@ -98,6 +96,12 @@ extern "C" {
  Solaris: /dev/ttya
  MacOS: /dev/ttys0
 */
+
+// Supported locking modes in addition to TIOCEXCL:
+// * USE_UUCP_LOCKING:  use UUCP-style lock  -> /var/lock/
+// * USE_FCNTL_LOCKING: use UNIX record lock -> fcntl(F_SETLK)
+
+
 
 // define our own file descriptor type to distinguish from the default used type int
 typedef int fd_t;
