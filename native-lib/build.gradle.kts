@@ -108,6 +108,12 @@ library {
 			}
 		}
 	}
+
+	// adds cross-compilation target for x86_64 on Win Aarch64
+//	targetMachines.set(listOf(
+//		machines.windows.architecture(MachineArchitecture.ARM64),
+//		machines.windows.x86_64
+//	))
 }
 
 tasks.withType<CppCompile>().configureEach {
