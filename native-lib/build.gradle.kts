@@ -117,9 +117,9 @@ tasks.withType<CppCompile>().configureEach {
 	}
 }
 
-if (!os.isWindows) {
-	// always build debug/release(+stripped) versions
-	tasks.named("build") {
+// always build debug/release(+stripped) versions
+tasks.named("build") {
+	dependsOn(tasks.matching { it.name.startsWith("assemble") })
+	if (!os.isWindows)
 		dependsOn(tasks.named("stripSymbolsRelease"))
-	}
 }
