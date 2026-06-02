@@ -336,11 +336,12 @@ static bool releaseLock(const char* port)
     char lockFile[MaxFileNameLength];
     createLockName(lockFile, lockDir, lckPrefix, name);
     errno = 0;
-    trace("release lock", lockFile);
 
     pid_t pid = readPid(lockFile);
-    if (pid != -1 && pid == getpid())
+    if (pid != -1 && pid == getpid()) {
+        trace("release lock", lockFile);
         unlink(lockFile);
+    }
     return true;
 }
 
