@@ -410,11 +410,8 @@ static bool setPortDefaults(fd_t fd)
     return true;
 }
 
-static fd_t openPort(JNIEnv* env, jstring portId, bool configurePort, int* lastError)
+static fd_t openPort(JNIEnv* env, const char* port, bool configurePort, int* lastError)
 {
-    jboolean iscopy;
-    const char* port = env->GetStringUTFChars(portId, &iscopy);
-
     fd_t fd = INVALID_FD;
     errno = 0;
     int error = 0;
@@ -479,12 +476,11 @@ static fd_t openPort(JNIEnv* env, jstring portId, bool configurePort, int* lastE
 
     if (lastError)
         *lastError = error;
-    env->ReleaseStringUTFChars(portId, port);
     return fd;
 }
 
 #if !defined __APPLE__
-static bool hasDevSerialLink(JNIEnv* env, jstring portId)
+static bool hasDevSerialLink(JNIEnv* env, const char* port)
 {
     const char* dir = "/dev/serial/by-id";
     trace("open dir", dir);
@@ -495,8 +491,6 @@ static bool hasDevSerialLink(JNIEnv* env, jstring portId)
         return false;
     }
 
-    jboolean iscopy;
-    const char* port = env->GetStringUTFChars(portId, &iscopy);
     bool hasLink = false;
     char filename[PATH_MAX];
     while ((dp = readdir(dfd)) != NULL) {
@@ -521,7 +515,6 @@ static bool hasDevSerialLink(JNIEnv* env, jstring portId)
         }
     }
 
-    env->ReleaseStringUTFChars(portId, port);
     return hasLink;
 }
 #endif // !defined __APPLE__
@@ -538,10 +531,13 @@ static bool hasDevSerialLink(JNIEnv* env, jstring portId)
 JNIEXPORT jboolean JNICALL Java_io_calimero_serial_provider_jni_TtySerialCom_portExists(
         JNIEnv* env, jclass /*c*/, jstring portID)
 {
+    jboolean iscopy;
+    const char* port = env->GetStringUTFChars(portID, &iscopy);
     int error;
     // this will open the port, alternatives might be to use /dev/serial or /proc/tty
-    fd_t fd = openPort(env, portID, false, &error);
+    fd_t fd = openPort(env, port, false, &error);
     if (fd == INVALID_FD) {
+        env->ReleaseStringUTFChars(portID, port);
         if (error == EBUSY || error == EPERM || error == EACCES)
             return JNI_TRUE;
         return JNI_FALSE;
@@ -553,7 +549,7 @@ JNIEXPORT jboolean JNICALL Java_io_calimero_serial_provider_jni_TtySerialCom_por
     if (ioctl(fd, TIOCGSERIAL, &info) == 0) {
         if (info.type != PORT_UNKNOWN)
             valid = JNI_TRUE;
-        else if (hasDevSerialLink(env, portID))
+        else if (hasDevSerialLink(env, port))
             valid = JNI_TRUE;
     }
     else
@@ -562,6 +558,7 @@ JNIEXPORT jboolean JNICALL Java_io_calimero_serial_provider_jni_TtySerialCom_por
     jboolean valid = JNI_FALSE;
 #endif
     closePort(fd);
+    env->ReleaseStringUTFChars(portID, port);
     return valid;
 }
 
@@ -573,8 +570,11 @@ JNIEXPORT jboolean JNICALL Java_io_calimero_serial_provider_jni_TtySerialCom_por
 JNIEXPORT void JNICALL Java_io_calimero_serial_provider_jni_TtySerialCom_open(JNIEnv* env,
         jobject obj, jstring portID)
 {
+    jboolean iscopy;
+    const char* port = env->GetStringUTFChars(portID, &iscopy);
+
     int error;
-    fd_t fd = openPort(env, portID, true, &error);
+    fd_t fd = openPort(env, port, true, &error);
     if (fd == INVALID_FD)
         throwException(env, error);
     else {
@@ -610,6 +610,8 @@ JNIEXPORT void JNICALL Java_io_calimero_serial_provider_jni_TtySerialCom_open(JN
             throwException(env, err);
         }
     }
+
+    env->ReleaseStringUTFChars(portID, port);
 }
 
 /*
