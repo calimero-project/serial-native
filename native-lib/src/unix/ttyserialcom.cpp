@@ -34,7 +34,7 @@
 #endif
 #endif
 
-#define _POSIX_C_SOURCE 1
+#define _POSIX_C_SOURCE 200112L
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -111,15 +111,10 @@ static const fd_t INVALID_FD = ((fd_t) -1);
 #if defined DEBUG
 
 static uint64_t timestamp_us() {
-#ifdef __MACH__
-	return 0;
-#else
 	struct timespec now;
 	clock_gettime(CLOCK_REALTIME, &now);
-
 	uint64_t us = now.tv_sec * 1000000 + now.tv_nsec / 1000;
 	return us;
-#endif
 }
 
 static uint64_t timestamp_diff(uint64_t start) {
@@ -130,14 +125,10 @@ static uint64_t timestamp_diff(uint64_t start) {
 static const char* timestamp() {
 	static char buf[50];
 	buf[0] = 0;
-#ifdef __MACH__
-	return "0.000";
-#else
 	struct timespec now;
 	clock_gettime(CLOCK_REALTIME, &now);
 	sprintf(buf, "%ld.%03ld", now.tv_sec, now.tv_nsec / 1000000);
 	return buf;
-#endif
 }
 
 static void trace(const char* msg, const char* msg2 = 0)
