@@ -173,19 +173,30 @@ static void trace(const char* /*msg*/, const char* /*msg2*/= 0) {}
 static void trace_error(const char* /*msg*/, const char* /*msg2*/= 0) {}
 #endif
 
-static void throwException(JNIEnv* env, int error)
+static void throwException(JNIEnv* env, const char* errmsg, const char* optmsg = 0)
 {
     const size_t size = 256;
     char msg[size];
-    msg[0] = 0;
+    strncpy(msg, errmsg, size - 1);
+    msg[size - 1] = '\0';
+    size_t len = strlen(msg);
+    if (optmsg != 0 && len < size - 2) {
+        msg[len++] = ' ';
+        strncpy(msg + len, optmsg, size - len - 1);
+        msg[size - 1] = '\0';
+    }
+    jclass c = env->FindClass("java/io/IOException");
+    env->ThrowNew(c, msg);
+}
+
+static void throwException(JNIEnv* env, int error)
+{
     // use POSIX strerror (i.e., retrieve error string pointer and copy it over)
     // instead of XSI/GNU strerror_r functions
     // while strerror_r is thread-safe, it is not available on all systems
     //const char* str = strerror_r(error, msg, 100);
     const char* str = strerror(error);
-    strncpy(msg, str, size - 1);
-    jclass c = env->FindClass("java/io/IOException");
-    env->ThrowNew(c, msg);
+    throwException(env, str);
 }
 
 static fd_t getFD(JNIEnv* env, jobject obj)
@@ -576,7 +587,7 @@ JNIEXPORT void JNICALL Java_io_calimero_serial_provider_jni_TtySerialCom_open(JN
     int error;
     fd_t fd = openPort(env, port, true, &error);
     if (fd == INVALID_FD)
-        throwException(env, error);
+        throwException(env, "failed to open port", port);
     else {
         setFD(env, obj, fd);
 #if defined DEBUG
